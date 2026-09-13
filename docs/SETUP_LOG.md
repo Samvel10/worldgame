@@ -78,3 +78,8 @@ Created `src/components/BattlePanel.tsx` with live WebSocket connection, guest n
 ## Step 19 — Account onboarding polish verification (2026-09-13)
 - Added responsive styles for account cards, forms, focus states, validation alerts, guest continuation, and lobby options.
 - Verified typecheck, lint, 55 unit tests, production build, GitHub push, server sync, and active systemd restart.
+
+## Step 20 — Battle session/start bug fix (2026-09-13)
+- Fixed the post-login loop by introducing an authenticated session state and a guest-ready state; the account screen no longer reappears after successful login/registration.
+- Fixed create/join flow to reuse the active session and only send guest identity when needed; restored the missing create button closing tag and verified host start path.
+- Re-ran typecheck, lint, 55 unit tests, production build, GitHub push, server sync, and systemd restart successfully.
