@@ -1,0 +1,2185 @@
+[
+  {
+    "word": "արև",
+    "difficulty": "easy",
+    "theme": "բնություն",
+    "definition": "Արեգակը՝ Երկրի լույսի ու ջերմության հիմնական աղբյուրը։"
+  },
+  {
+    "word": "ամպ",
+    "difficulty": "easy",
+    "theme": "բնություն",
+    "definition": "Մթնոլորտում ջրի մանր կաթիլների կամ սառցաբյուրեղների կուտակում։"
+  },
+  {
+    "word": "անձրև",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "ձյուն",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "քամի",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "հող",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "ջուր",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "ծով",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "լիճ",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "գետ",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "սար",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "ձոր",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "քար",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "ավազ",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "կրակ",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "անտառ",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "դաշտ",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "այգի",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "ծառ",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "ծաղիկ",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "տերև",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "ճյուղ",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "արմատ",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "բույս",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "խոտ",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "սունկ",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "գարուն",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "ամառ",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "աշուն",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "ձմեռ",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "երկինք",
+    "difficulty": "medium",
+    "theme": "բնություն"
+  },
+  {
+    "word": "աստղ",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "լուսին",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "աշխարհ",
+    "difficulty": "medium",
+    "theme": "բնություն"
+  },
+  {
+    "word": "բնություն",
+    "difficulty": "medium",
+    "theme": "բնություն"
+  },
+  {
+    "word": "հորիզոն",
+    "difficulty": "medium",
+    "theme": "բնություն"
+  },
+  {
+    "word": "մթնոլորտ",
+    "difficulty": "medium",
+    "theme": "բնություն"
+  },
+  {
+    "word": "արեգակ",
+    "difficulty": "medium",
+    "theme": "բնություն"
+  },
+  {
+    "word": "լուսաբաց",
+    "difficulty": "medium",
+    "theme": "բնություն"
+  },
+  {
+    "word": "մայրամուտ",
+    "difficulty": "medium",
+    "theme": "բնություն"
+  },
+  {
+    "word": "ջրվեժ",
+    "difficulty": "easy",
+    "theme": "բնություն"
+  },
+  {
+    "word": "աղբյուր",
+    "difficulty": "medium",
+    "theme": "բնություն"
+  },
+  {
+    "word": "լեռնաշղթա",
+    "difficulty": "hard",
+    "theme": "բնություն"
+  },
+  {
+    "word": "երկրաշարժ",
+    "difficulty": "hard",
+    "theme": "բնություն"
+  },
+  {
+    "word": "ծիածան",
+    "difficulty": "medium",
+    "theme": "բնություն"
+  },
+  {
+    "word": "մառախուղ",
+    "difficulty": "medium",
+    "theme": "բնություն"
+  },
+  {
+    "word": "ցրտահարություն",
+    "difficulty": "hard",
+    "theme": "բնություն"
+  },
+  {
+    "word": "արևադարձ",
+    "difficulty": "medium",
+    "theme": "բնություն"
+  },
+  {
+    "word": "շուն",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "կատու",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "կով",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "ոչխար",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "այծ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "խոզ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "գայլ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "աղվես",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "արջ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "առյուծ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "վագր",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "նապաստակ",
+    "difficulty": "medium",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "մուկ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "սկյուռ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "ոզնի",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "կապիկ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "ուղտ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "եղնիկ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "թռչուն",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "արծիվ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "բազե",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "աղավնի",
+    "difficulty": "medium",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "ճնճղուկ",
+    "difficulty": "medium",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "ծիծեռնակ",
+    "difficulty": "medium",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "ագռավ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "կարապ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "բադ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "սագ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "հավ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "աքաղաղ",
+    "difficulty": "medium",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "ձուկ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "մեղու",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "մրջյուն",
+    "difficulty": "medium",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "թիթեռ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "սարդ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "մոծակ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "կրիա",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "գորտ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "դելֆին",
+    "difficulty": "medium",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "փիղ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "կոկորդիլոս",
+    "difficulty": "hard",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "գետաձի",
+    "difficulty": "medium",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "չղջիկ",
+    "difficulty": "easy",
+    "theme": "կենդանիներ"
+  },
+  {
+    "word": "տուն",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "դուռ",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "պատ",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "տանիք",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "սենյակ",
+    "difficulty": "medium",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "պատուհան",
+    "difficulty": "medium",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "սեղան",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "աթոռ",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "մահճակալ",
+    "difficulty": "medium",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "պահարան",
+    "difficulty": "medium",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "գորգ",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "հայելի",
+    "difficulty": "medium",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "ժամացույց",
+    "difficulty": "medium",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "բանալի",
+    "difficulty": "medium",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "կողպեք",
+    "difficulty": "medium",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "լույս",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "մոմ",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "լամպ",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "բաժակ",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "ափսե",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "գդալ",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "դանակ",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "պատառաքաղ",
+    "difficulty": "hard",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "կաթսա",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "սրբիչ",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "օճառ",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "սանր",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "հագուստ",
+    "difficulty": "medium",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "շապիկ",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "տաբատ",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "զգեստ",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "վերարկու",
+    "difficulty": "medium",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "կոշիկ",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "գուլպա",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "գլխարկ",
+    "difficulty": "medium",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "գոտի",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "պայուսակ",
+    "difficulty": "medium",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "հովանոց",
+    "difficulty": "medium",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "ակնոց",
+    "difficulty": "easy",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "հեռախոս",
+    "difficulty": "medium",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "համակարգիչ",
+    "difficulty": "hard",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "սառնարան",
+    "difficulty": "medium",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "հեռուստացույց",
+    "difficulty": "hard",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "գրասեղան",
+    "difficulty": "medium",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "գրապահարան",
+    "difficulty": "hard",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "օդափոխություն",
+    "difficulty": "hard",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "էլեկտրականություն",
+    "difficulty": "expert",
+    "theme": "առօրյա"
+  },
+  {
+    "word": "հաց",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "շաքար",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "մեղր",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "կաթ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "պանիր",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "մածուն",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "կարագ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "միս",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "ձեթ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "բրինձ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "ալյուր",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "ապուր",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "թեյ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "սուրճ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "հյութ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "գինի",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "միրգ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "խնձոր",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "տանձ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "խաղող",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "ծիրան",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "դեղձ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "սալոր",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "բալ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "նուռ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "թուզ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "սեխ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "ձմերուկ",
+    "difficulty": "medium",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "ելակ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "ազնվամորի",
+    "difficulty": "hard",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "նարինջ",
+    "difficulty": "medium",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "կիտրոն",
+    "difficulty": "medium",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "բանան",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "ընկույզ",
+    "difficulty": "medium",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "նուշ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "պնդուկ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "կարտոֆիլ",
+    "difficulty": "medium",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "լոլիկ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "վարունգ",
+    "difficulty": "medium",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "սոխ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "սխտոր",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "գազար",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "կաղամբ",
+    "difficulty": "medium",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "բողկ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "պղպեղ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "սմբուկ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "դդում",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "լոբի",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "ոլոռ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "ոսպ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "կանաչի",
+    "difficulty": "medium",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "լավաշ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "գաթա",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "հարիսա",
+    "difficulty": "medium",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "խորոված",
+    "difficulty": "medium",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "պաղպաղակ",
+    "difficulty": "medium",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "նախաճաշ",
+    "difficulty": "medium",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "ճաշ",
+    "difficulty": "easy",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "ընթրիք",
+    "difficulty": "medium",
+    "theme": "սնունդ"
+  },
+  {
+    "word": "մարդ",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "երեխա",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "մայր",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "հայր",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "քույր",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "եղբայր",
+    "difficulty": "medium",
+    "theme": "մարդ"
+  },
+  {
+    "word": "տատ",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "պապ",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "ընտանիք",
+    "difficulty": "medium",
+    "theme": "մարդ"
+  },
+  {
+    "word": "ընկեր",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "հարևան",
+    "difficulty": "medium",
+    "theme": "մարդ"
+  },
+  {
+    "word": "ուսուցիչ",
+    "difficulty": "medium",
+    "theme": "մարդ"
+  },
+  {
+    "word": "բժիշկ",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "վարորդ",
+    "difficulty": "medium",
+    "theme": "մարդ"
+  },
+  {
+    "word": "նկարիչ",
+    "difficulty": "medium",
+    "theme": "մարդ"
+  },
+  {
+    "word": "երգիչ",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "գրող",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "բանաստեղծ",
+    "difficulty": "hard",
+    "theme": "մարդ"
+  },
+  {
+    "word": "ճարտարապետ",
+    "difficulty": "hard",
+    "theme": "մարդ"
+  },
+  {
+    "word": "գիտնական",
+    "difficulty": "medium",
+    "theme": "մարդ"
+  },
+  {
+    "word": "աշակերտ",
+    "difficulty": "medium",
+    "theme": "մարդ"
+  },
+  {
+    "word": "ուսանող",
+    "difficulty": "medium",
+    "theme": "մարդ"
+  },
+  {
+    "word": "աշխատակից",
+    "difficulty": "hard",
+    "theme": "մարդ"
+  },
+  {
+    "word": "բարեկամ",
+    "difficulty": "medium",
+    "theme": "մարդ"
+  },
+  {
+    "word": "հյուր",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "գլուխ",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "աչք",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "ականջ",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "քիթ",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "բերան",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "լեզու",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "ատամ",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "ձեռք",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "ոտք",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "սիրտ",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "միտք",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "հոգի",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "անուն",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "ժպիտ",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "երազ",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "սեր",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "հույս",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "հավատ",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "կարոտ",
+    "difficulty": "easy",
+    "theme": "մարդ"
+  },
+  {
+    "word": "ուրախություն",
+    "difficulty": "hard",
+    "theme": "մարդ"
+  },
+  {
+    "word": "երջանկություն",
+    "difficulty": "hard",
+    "theme": "մարդ"
+  },
+  {
+    "word": "ընկերություն",
+    "difficulty": "hard",
+    "theme": "մարդ"
+  },
+  {
+    "word": "բարեկամություն",
+    "difficulty": "hard",
+    "theme": "մարդ"
+  },
+  {
+    "word": "պատասխանատվություն",
+    "difficulty": "expert",
+    "theme": "մարդ"
+  },
+  {
+    "word": "ինքնավստահություն",
+    "difficulty": "expert",
+    "theme": "մարդ"
+  },
+  {
+    "word": "անհատականություն",
+    "difficulty": "expert",
+    "theme": "մարդ"
+  },
+  {
+    "word": "ստեղծագործություն",
+    "difficulty": "expert",
+    "theme": "մարդ"
+  },
+  {
+    "word": "համագործակցություն",
+    "difficulty": "expert",
+    "theme": "մարդ",
+    "definition": "Ընդհանուր նպատակի համար համատեղ աշխատանք։"
+  },
+  {
+    "word": "արժանապատվություն",
+    "difficulty": "expert",
+    "theme": "մարդ"
+  },
+  {
+    "word": "աշխատասիրություն",
+    "difficulty": "expert",
+    "theme": "մարդ"
+  },
+  {
+    "word": "երախտագիտություն",
+    "difficulty": "expert",
+    "theme": "մարդ",
+    "definition": "Ստացած բարիքի կամ օգնության համար շնորհակալության զգացում։"
+  },
+  {
+    "word": "բառ",
+    "difficulty": "easy",
+    "theme": "մշակույթ",
+    "definition": "Լեզվի իմաստ արտահայտող հիմնական միավոր։"
+  },
+  {
+    "word": "տառ",
+    "difficulty": "easy",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "գիր",
+    "difficulty": "easy",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "գիրք",
+    "difficulty": "easy",
+    "theme": "մշակույթ",
+    "definition": "Միասին ամրացված էջերից կազմված տպագիր կամ ձեռագիր երկ։"
+  },
+  {
+    "word": "տող",
+    "difficulty": "easy",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "գրչատուփ",
+    "difficulty": "medium",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "մատիտ",
+    "difficulty": "easy",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "գրիչ",
+    "difficulty": "easy",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "թուղթ",
+    "difficulty": "easy",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "տետր",
+    "difficulty": "easy",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "դպրոց",
+    "difficulty": "easy",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "դաս",
+    "difficulty": "easy",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "դասարան",
+    "difficulty": "medium",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "դասագիրք",
+    "difficulty": "medium",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "գրադարան",
+    "difficulty": "medium",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "համալսարան",
+    "difficulty": "hard",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "գիտություն",
+    "difficulty": "medium",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "կրթություն",
+    "difficulty": "medium",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "արվեստ",
+    "difficulty": "medium",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "երաժշտություն",
+    "difficulty": "hard",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "երգ",
+    "difficulty": "easy",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "պար",
+    "difficulty": "easy",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "նկար",
+    "difficulty": "easy",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "գույն",
+    "difficulty": "easy",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "թատրոն",
+    "difficulty": "medium",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "կինո",
+    "difficulty": "easy",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "թանգարան",
+    "difficulty": "medium",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "պատմություն",
+    "difficulty": "hard",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "հեքիաթ",
+    "difficulty": "medium",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "առակ",
+    "difficulty": "easy",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "պատմվածք",
+    "difficulty": "medium",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "վեպ",
+    "difficulty": "easy",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "բանաստեղծություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "քանդակ",
+    "difficulty": "medium",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "ճարտարապետություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "գրականություն",
+    "difficulty": "hard",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "նկարչություն",
+    "difficulty": "hard",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "լուսանկարչություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "ձեռագիր",
+    "difficulty": "medium",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "ձեռագրատուն",
+    "difficulty": "hard",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "մատենադարան",
+    "difficulty": "hard",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "բառարան",
+    "difficulty": "medium",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "հանրագիտարան",
+    "difficulty": "hard",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "աշխարհագրություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "մաթեմատիկա",
+    "difficulty": "hard",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "բնագիտություն",
+    "difficulty": "hard",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "աստղագիտություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "լեզվաբանություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "թարգմանություն",
+    "difficulty": "hard",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "ուղղագրություն",
+    "difficulty": "hard",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "կետադրություն",
+    "difficulty": "hard",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "արտասանություն",
+    "difficulty": "hard",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "ժողովրդավարություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "սահմանադրություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "արդարադատություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "ինքնակառավարում",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "արդյունաբերություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "հավանականություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "բազմազանություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "օրինաչափություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "անհավասարություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "դաստիարակություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "ուսումնասիրություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "փորձառություն",
+    "difficulty": "hard",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "ինքնակենսագրություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ",
+    "definition": "Մարդու՝ իր կյանքի մասին գրած նկարագրություն։"
+  },
+  {
+    "word": "աշխարհայացք",
+    "difficulty": "hard",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "ճանապարհորդություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "տնտեսագիտություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "առողջապահություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "գյուղատնտեսություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "կենսագործունեություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "գիտահետազոտական",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "սահմանադրականություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "անպատասխանատվություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ"
+  },
+  {
+    "word": "անհանդուրժողականություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ",
+    "definition": "Ուրիշի կարծիքը, վարքը կամ տարբերությունը չընդունելու վերաբերմունք։"
+  },
+  {
+    "word": "քաղաք",
+    "difficulty": "easy",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "գյուղ",
+    "difficulty": "easy",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "փողոց",
+    "difficulty": "easy",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "բակ",
+    "difficulty": "easy",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "ճանապարհ",
+    "difficulty": "medium",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "կամուրջ",
+    "difficulty": "medium",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "շենք",
+    "difficulty": "easy",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "կայարան",
+    "difficulty": "medium",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "օդանավակայան",
+    "difficulty": "hard",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "նավահանգիստ",
+    "difficulty": "hard",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "հրապարակ",
+    "difficulty": "medium",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "պուրակ",
+    "difficulty": "easy",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "զբոսայգի",
+    "difficulty": "medium",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "հիվանդանոց",
+    "difficulty": "hard",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "դեղատուն",
+    "difficulty": "medium",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "խանութ",
+    "difficulty": "easy",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "շուկա",
+    "difficulty": "easy",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "գործարան",
+    "difficulty": "medium",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "գրախանութ",
+    "difficulty": "medium",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "մայրաքաղաք",
+    "difficulty": "hard",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "բնակավայր",
+    "difficulty": "hard",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "հանրապետություն",
+    "difficulty": "expert",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "մարզ",
+    "difficulty": "easy",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "երկիր",
+    "difficulty": "easy",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "հայրենիք",
+    "difficulty": "medium",
+    "theme": "վայրեր"
+  },
+  {
+    "word": "լավ",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "վատ",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "մեծ",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "փոքր",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "նոր",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "հին",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "բարի",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "չար",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "գեղեցիկ",
+    "difficulty": "medium",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "խելացի",
+    "difficulty": "medium",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "ազնիվ",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "ուրախ",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "տխուր",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "երկար",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "կարճ",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "լայն",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "նեղ",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "բարձր",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "ցածր",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "արագ",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "դանդաղ",
+    "difficulty": "medium",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "տաք",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "սառը",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "քաղցր",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "դառը",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "սպիտակ",
+    "difficulty": "medium",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "կարմիր",
+    "difficulty": "medium",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "կանաչ",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "կապույտ",
+    "difficulty": "medium",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "դեղին",
+    "difficulty": "easy",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "մանուշակագույն",
+    "difficulty": "hard",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "նարնջագույն",
+    "difficulty": "hard",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "թափանցիկ",
+    "difficulty": "medium",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "լուսավոր",
+    "difficulty": "medium",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "հետաքրքիր",
+    "difficulty": "hard",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "զարմանալի",
+    "difficulty": "hard",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "հրաշալի",
+    "difficulty": "medium",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "համարձակ",
+    "difficulty": "medium",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "համբերատար",
+    "difficulty": "hard",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "պատասխանատու",
+    "difficulty": "hard",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "ինքնուրույն",
+    "difficulty": "hard",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "անսահման",
+    "difficulty": "medium",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "անսովոր",
+    "difficulty": "medium",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "աննկարագրելի",
+    "difficulty": "hard",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "աննախադեպ",
+    "difficulty": "hard",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "անփոխարինելի",
+    "difficulty": "hard",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "բազմաբովանդակ",
+    "difficulty": "expert",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "բազմակողմանի",
+    "difficulty": "hard",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "համամարդկային",
+    "difficulty": "expert",
+    "theme": "հատկանիշներ"
+  },
+  {
+    "word": "գիշեր",
+    "difficulty": "easy",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "առավոտ",
+    "difficulty": "medium",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "երեկո",
+    "difficulty": "easy",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "կեսօր",
+    "difficulty": "easy",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "ժամ",
+    "difficulty": "easy",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "րոպե",
+    "difficulty": "easy",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "վայրկյան",
+    "difficulty": "medium",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "շաբաթ",
+    "difficulty": "easy",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "ամիս",
+    "difficulty": "easy",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "տարի",
+    "difficulty": "easy",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "այսօր",
+    "difficulty": "easy",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "վաղը",
+    "difficulty": "easy",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "երեկ",
+    "difficulty": "easy",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "երկուշաբթի",
+    "difficulty": "hard",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "երեքշաբթի",
+    "difficulty": "hard",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "չորեքշաբթի",
+    "difficulty": "hard",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "հինգշաբթի",
+    "difficulty": "hard",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "ուրբաթ",
+    "difficulty": "easy",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "կիրակի",
+    "difficulty": "medium",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "ժամանակ",
+    "difficulty": "medium",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "հավերժություն",
+    "difficulty": "hard",
+    "theme": "ժամանակ"
+  },
+  {
+    "word": "ճանապարհաշինարարական",
+    "difficulty": "expert",
+    "theme": "վայրեր",
+    "definition": "Ճանապարհների կառուցմանը վերաբերող։"
+  },
+  {
+    "word": "աշխարհաքաղաքացիություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ",
+    "definition": "Աշխարհի բոլոր մարդկանց ընդհանուր պատկանելության գաղափար։"
+  },
+  {
+    "word": "էլեկտրասարքավորություն",
+    "difficulty": "expert",
+    "theme": "առօրյա",
+    "definition": "Էլեկտրական սարքերի և հարմարանքների ամբողջություն։"
+  },
+  {
+    "word": "ուսումնադաստիարակչական",
+    "difficulty": "expert",
+    "theme": "մշակույթ",
+    "definition": "Ուսուցմանն ու դաստիարակությանը վերաբերող։"
+  },
+  {
+    "word": "ողբերգակատակերգություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ",
+    "definition": "Ողբերգության և կատակերգության տարրերը միավորող ստեղծագործություն։"
+  },
+  {
+    "word": "տիեզերանավագնացություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ",
+    "definition": "Տիեզերական ապարատներով թռիչքների բնագավառ։"
+  },
+  {
+    "word": "աննպատակահարմարություն",
+    "difficulty": "expert",
+    "theme": "հատկանիշներ",
+    "definition": "Տվյալ նպատակին կամ պայմաններին չհամապատասխանելը։"
+  },
+  {
+    "word": "ջերմահաղորդականություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ",
+    "definition": "Նյութի՝ ջերմություն հաղորդելու հատկություն։"
+  },
+  {
+    "word": "էլեկտրամետաղագործական",
+    "difficulty": "expert",
+    "theme": "մշակույթ",
+    "definition": "Էլեկտրականությամբ մետաղների ստացմանն ու մշակմանը վերաբերող։"
+  },
+  {
+    "word": "աշխարհաքաղաքականություն",
+    "difficulty": "expert",
+    "theme": "մշակույթ",
+    "definition": "Աշխարհագրական գործոնների և քաղաքականության կապերն ուսումնասիրող բնագավառ։"
+  }
+]

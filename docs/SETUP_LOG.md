@@ -1,0 +1,65 @@
+# Setup and implementation audit
+
+## 2026-09-13 — Step 1: instructions and discovery
+
+Read the supplied AGENTS instructions and skills: hayeren, using-superpowers, brainstorming, writing-plans, test-driven-development, and browser. Commands: `pwd`, `rg --files`, `ls -la`, ancestor AGENTS reads, `node -v`, `npm -v`, `git status --short`. Outcome: empty Git repository with an existing `.tool-test` file; Node 24.15.0 and npm 11.12.1. Preserve existing file. No on-disk ancestor AGENTS found. User explicitly authorized full implementation, so proceed without redundant design approval.
+
+## Step 2: architecture and verification plan
+
+Create React/TypeScript/Vite with isolated pure game functions, validated storage, curated answer metadata and separately sourced accepted words, component UI, and tests. Armenian NFC lowercase; canonical և, and ու as one tile. Difficulty controls select from actual available lengths. Native modal dialogs provide focus trapping. Local fonts, light/dark themes, reduced-motion support. Validate unit tests, TypeScript, ESLint, production build, browser desktop/mobile and gameplay. Commands: `mkdir -p docs src/game src/data src/components src/hooks tests scripts public`; web source discovery for Armenian dictionary provenance. Outcome: structure and plan established.
+
+## Step 3: scaffold and source discovery
+
+Commands: `npm install react react-dom lucide-react @fontsource/noto-sans-armenian`, development dependency installation (TypeScript, Vite, Vitest, ESLint, Playwright, axe), `curl -fsSL` GitHub API and raw dictionary/license endpoints. Created package/config/HTML/favicon/gitignore files. Selected martakert/hyspell, CC0 license; preserved source and license under data/source. No generated inflections will be invented. Curated answers will be checked against dictionary headwords. Dependencies installing; source downloads succeeded.
+
+## Step 4: tests, dictionary processing, game engine
+
+Commands: `npm test` (expected initial failure: missing engine module), `node scripts/build-dictionary.mjs`, Python curation against accepted headwords, `node scripts/check-dictionary.mjs`. Imported 65,002 lowercase Armenian headwords; curated 423 unique attested answers across four levels. Rejected seven candidate answers missing from the source. Created types, normalization/tokenization, two-pass duplicate scoring, keyboard merge, filtering, random/history selection, completion, stats and deep storage guards. Initial GitHub `commits/master` request failed HTTP 422; recovered with `commits?per_page=1`, pinned revision 552ec8ea46af3113b39bf4f7191e64f6675c7863. Raw dictionary/license downloads succeeded. No source contents or definitions fabricated.
+
+## Step 5: working interface and state integration
+
+Created useGame state hook, Board, Keyboard, SettingsPanel, native dialog Modal, Help, Statistics, App, main and responsive styles. Features: local persisted preferences/stats/history/theme, guarded new game, full Armenian keys, real input and physical key handlers, duplicate-aware tile/key symbols, difficulty/custom candidate counts, hint, win/loss/replay/reset dialogs, focus trapping, reduced motion and long-word fitting. Commands: file creation via quoted shell heredocs. Outcome: complete implementation ready for build and browser checks. Engine verification: 43 tests passed.
+
+## Step 6: initial integration checks and browser connection
+
+Commands: `npm run build && npm run lint`, `nl -ba src/App.tsx | sed -n '32,39p'`. Build identified a missing JSX closing brace in input onKeyDown (App line 36); fixed the exact syntax issue and reran checks. Read systematic-debugging and verification-before-completion skills. Browser plugin initialization failed because its trusted worker imports missing `/home/samo/.codex/plugins/cache/openai-bundled/browser/26.818.61809/scripts/browser-service.mjs`; current listed plugin path is 26.908.40834. Using local Playwright Chromium for user-requested visual and flow checks. Command: `npm exec playwright -- install chromium`.
+
+## Step 7: browser regression suite and diagnostic fixes
+
+Created Playwright configuration and nine browser tests covering invalid input/no attempt consumption, victory/replay/stats/reset, defeat, physical/on-screen input, unavailable custom pools, restart confirmation, dialog focus, theme persistence/corrupt storage, hint and desktop/mobile/long-word accessibility. Commands: `npm run test:e2e`, `npm run build && npm run lint`. Build succeeded after adding Vite CSS declarations; lint initially reported two shared-constant Fast Refresh warnings, resolved by extracting game/presentation.ts. First E2E discovery failed due to Node 24 JSON import attributes; changed test fixture loading to explicit fs JSON parsing. Created dictionary methodology/provenance documentation. Build warns about bundled dictionary size (325 KB gzip total); reviewing loading strategy.
+
+## Step 8: accessibility fixes and verified browser flow
+
+First E2E pass: four passed, five failed. Investigated traces/snapshots: broad tile selector included hidden help tile; Playwright cannot synthesize an Armenian OS layout with keyboard.press; label lookup required combobox role. Corrected fixtures/selectors without changing app behavior. Real defects fixed: muted contrast, missing roles on named tile/group elements, native-dialog tab escape (explicit first/last wrap), and temporary low contrast during theme background transitions. Replaced transition with transform-only and kept letters lowercase to preserve Armenian և spelling. All nine browser tests now pass, including light/dark axe audit and 320/390/650/768-width long-board fit. Screenshots saved to docs/screenshots and desktop inspected.
+
+## Step 9: dictionary startup loading
+
+A large JS bundle warning came from embedding the full accepted-word JSON as executable code. Moving it to a hashed local asset fetched and validated before mounting the game; added loading/error/retry screens. Added strict malformed-dictionary test (initial generic throw assertion was falsely passing because function was absent; tightened to expected error message and observed failure before implementation). Added browser retry regression. Commands: `npm test`, file updates, `npm install -D prettier`. Formatting tool installed for readable component/module source. No external runtime dictionary service required.
+
+## Step 10: visual inspection, long-word polish and documentation
+
+Inspected desktop, dark, mobile and mobile-long PNGs using view_image. Found custom tab label cramped and long tiles too short for separate status symbols; added a short mobile label and 32px tall long-word tiles with symbols below letters. Fixed visually hidden skip-link clipping for full-page screenshots. Expanded source-verified answers with ten real 20–21 letter terms and short original definitions; now 433 answers, 49 expert, nine 20-letter and two 21-letter answers. Footer derives count from data. Updated dictionary methodology and README. Used Prettier to format all source, configs and tests. Commands: `node scripts/check-dictionary.mjs`, `npm exec prettier -- --write ...`, `npm run lint && npm run build && npm test`. Results: lint clean, 44 unit tests pass, build warning eliminated (JS ~290 KB, dictionary separate ~1.39 MB / 240 KB gzip).
+
+## Step 11: loading regression and production check preparation
+
+Ten browser tests pass after the startup asset change. Updated test setup to await visible ready input before reading selected-word fixture; network-failure route now aborts only fetch (not Vite's URL module import). Added a 1150ms result-dialog delay so the final row can reveal, disabled delay under reduced motion. Added production-preview mode to Playwright configuration, Node version requirement and format commands. README includes exact launch/build/test commands, architecture, dictionary method and honest limitations. Source snapshot verification command: curl the pinned GitHub revision and compare sha256sum with preserved dictionary.
+
+## 2026-09-13 — Step 12: Battle scope and current repository audit
+User expanded scope to multiplayer Battle rooms across devices, 2–8 participants, synchronized level progression, timed scoring, optional registration, history, and installable app support. Audited current source with `rg --files`, `cat package.json`, i18n provider/index and Vite config. Existing app is Vite-only with no server, auth, database or PWA manifest. Decision: add a self-contained Node WebSocket/SQLite service and a client Battle mode while preserving solo Wordle. Guest sessions work without signup; registered accounts persist history. Battle protocol will use server-authoritative rooms and deterministic round seeds so every device receives identical answer words. PWA uses manifest/service worker for installability and offline shell; multiplayer requires network connection.
+
+## 2026-09-13 — Step 13: Battle protocol foundation
+Added `server/index.mjs` and `server/README.md`: WebSocket room service with guest/register/login flows, atomic JSON account persistence, 2–8 player lobby, host start, four level rounds, deterministic server-selected answer, deadlines, speed/wrong-answer scoring, disconnect state and room cleanup. Added `src/game/battle.ts` and unit tests for ordered levels, seed determinism, normalization and scoring. Server validates submitted guesses against its private answer; clients do not receive the secret.
+
+## 2026-09-13 — Step 14: Battle client and installable shell
+Created `src/components/BattlePanel.tsx` with live WebSocket connection, guest name, room creation/joining, 2–8 participant selection, lobby presence, host start, four synchronized rounds, countdown, speed scoring, opponent scoreboard and offline guidance. Added `src/game/battle.test.ts`. Added `public/manifest.webmanifest` and `public/sw.js`, linked manifest and production service worker registration for installable PWA shell. Added battle styles and translated Battle copy in Armenian, English and Russian. Initial server allows guest identity and exposes registration protocol; client lobby remains guest-first to keep friction low.
+
+## Step 15 — Final i18n and Battle smoke validation (2026-09-13)
+- Converted Help and Statistics visible copy to translation keys for Armenian, English, and Russian; preserved Armenian example letters because the game content is Armenian by design.
+- Reworked `scripts/test-battle.mjs` to attach WebSocket listeners before handshake events, preventing message races; verified two guest clients can create and join a room.
+- Added explicit Battle host socket tracking on the server and constrained responsive overflow on the app root/workspace.
+- Commands: `npm run typecheck`, `npm run lint`, `npm test -- --run`, `npm run dictionary:check`, `npm run build`, `npm run test:battle`.
+- Result: typecheck/lint/build passed, 55 unit tests passed, dictionary check reported 65,002 accepted and 433 curated answers, Battle smoke test passed. One long-board Playwright width test still reports horizontal overflow after dynamic 20-letter interaction and remains under investigation.
+
+## Step 16 — Documentation and final smoke checks (2026-09-13)
+- Documented Battle server startup, WebSocket configuration, account persistence, deployment expectations, and PWA installation in README.
+- Verified `npm run typecheck` and `npm run test:battle` after documentation and responsive CSS changes.

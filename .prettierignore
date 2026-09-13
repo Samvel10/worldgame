@@ -1,0 +1,8 @@
+node_modules
+dist
+data
+src/data/accepted.json
+package-lock.json
+docs/screenshots
+test-results
+playwright-report
