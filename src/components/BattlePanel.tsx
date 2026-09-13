@@ -12,7 +12,11 @@ type Player = {
   connected: boolean;
 };
 type Message = { type: string; [key: string]: unknown };
-const BATTLE_URL = import.meta.env.VITE_BATTLE_URL ?? 'ws://localhost:8787';
+const BATTLE_URL =
+  import.meta.env.VITE_BATTLE_URL ??
+  (typeof window !== 'undefined'
+    ? `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws`
+    : 'ws://localhost:8787');
 export function BattlePanel({ onClose }: { onClose: () => void }) {
   const { t } = useI18n();
   const socket = useRef<WebSocket | null>(null);
