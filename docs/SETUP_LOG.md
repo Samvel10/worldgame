@@ -83,3 +83,8 @@ Created `src/components/BattlePanel.tsx` with live WebSocket connection, guest n
 - Fixed the post-login loop by introducing an authenticated session state and a guest-ready state; the account screen no longer reappears after successful login/registration.
 - Fixed create/join flow to reuse the active session and only send guest identity when needed; restored the missing create button closing tag and verified host start path.
 - Re-ran typecheck, lint, 55 unit tests, production build, GitHub push, server sync, and systemd restart successfully.
+
+## Step 21 — Global audit and graph mapping (2026-09-13)
+- Ran the graphify code-map update for the project: 217 nodes and 470 edges extracted across client/server modules.
+- Audited the Battle lifecycle and identified the root causes of the reported behavior: the UI reset authenticated sessions to the welcome state, and create/join sent guest identity opportunistically instead of respecting the active session.
+- Confirmed the deployed service remains active and live HTTPS serves the production bundle.
