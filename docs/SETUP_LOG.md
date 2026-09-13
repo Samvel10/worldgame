@@ -88,3 +88,8 @@ Created `src/components/BattlePanel.tsx` with live WebSocket connection, guest n
 - Ran the graphify code-map update for the project: 217 nodes and 470 edges extracted across client/server modules.
 - Audited the Battle lifecycle and identified the root causes of the reported behavior: the UI reset authenticated sessions to the welcome state, and create/join sent guest identity opportunistically instead of respecting the active session.
 - Confirmed the deployed service remains active and live HTTPS serves the production bundle.
+
+## Step 22 — Refresh/cache reliability fix (2026-09-13)
+- Identified the refresh slowdown/stale behavior source: the PWA service worker used cache-first for the HTML and versioned assets, so users could receive obsolete bundles after deployment.
+- Bumped the cache version, added old-cache cleanup, and switched navigation/JS/CSS requests to network-first with offline fallback.
+- Redeployed the production bundle and restarted Battle service.
