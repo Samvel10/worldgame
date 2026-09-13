@@ -93,3 +93,21 @@ Created `src/components/BattlePanel.tsx` with live WebSocket connection, guest n
 - Identified the refresh slowdown/stale behavior source: the PWA service worker used cache-first for the HTML and versioned assets, so users could receive obsolete bundles after deployment.
 - Bumped the cache version, added old-cache cleanup, and switched navigation/JS/CSS requests to network-first with offline fallback.
 - Redeployed the production bundle and restarted Battle service.
+
+## Fresh audit
+Source tracing identified guest player lookup, socket-only accounts, hidden-modal connections, missing Battle validation/attempts, and uncancelled round timers. Prior lobby-only smoke checks did not verify a playable game. See docs/AUDIT.md. No performance root cause has yet been measured.
+
+## Audit verification and deployment design
+- Replaced the lobby-only smoke with four-round two-client start/validation/finish coverage; it failed against the original server and passes with socket-based player identity.
+- Added site-level account pages, persisted HttpOnly cookie sessions, logout and history; removed authentication forms and hidden socket from the Battle modal.
+- Implemented server-only answers/marks, enforced dictionary/length/attempt validation, phase guards and cancellable room timers. Added public-room matchmaking and disconnect cleanup.
+- Added production-browser tests: two registered users complete four rounds, profiles survive refresh, language switches keep rooms, route cycles release sockets, API is never cached, and offline solo loads.
+- Added equivalent translation key tests and fixed remaining visible and accessible UI labels. Account screenshots were inspected at desktop/mobile sizes.
+- Production preview audit: 5 browser tests passed; six reloads took 291/174/163/153/161/150 ms. Existing solo suite: 11 passed, including the 20-letter mobile scenario.
+- Remote read-only inspection: old Battle service had ~15 MB memory, zero restarts, and its server/data directory was empty. No claim is made that prior account data can be recovered. New deployments will protect an external persistent directory and retain releases/backups.
+
+## Release preparation
+- Added scoped activation script with application-specific backup, rollback on error, unprivileged service user, loopback listener, and persistent /var/lib/worldgame storage.
+- Replaced stale deployment instructions and README with current account/Battle rules, screenshots, test commands and explicit operating limits.
+- Added tests for three-player public matchmaking, attempt exhaustion, restart-compatible sessions, wrong/correct UI login, and legacy service-worker migration.
+- Checked account and Battle desktop/mobile screenshots directly. Fixed shared theme state, translated board labels, and preserved physical keyboard support beyond input focus.

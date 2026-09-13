@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { getNestedValue, interpolate } from './utils';
 import type { LanguageCode } from './translations';
@@ -20,7 +20,12 @@ interface I18nProviderProps {
 export function I18nProvider({ children, defaultLanguage = 'hy' }: I18nProviderProps) {
   const [language, setLanguageState] = useState<LanguageCode>(() => {
     // Try to load from localStorage
-    const saved = localStorage.getItem('language');
+    let saved: string | null = null;
+    try {
+      saved = localStorage.getItem('language');
+    } catch {
+      /* unavailable storage */
+    }
     if (saved && (saved === 'hy' || saved === 'en' || saved === 'ru')) {
       return saved as LanguageCode;
     }
@@ -29,26 +34,32 @@ export function I18nProvider({ children, defaultLanguage = 'hy' }: I18nProviderP
 
   // Persist language choice
   useEffect(() => {
-    localStorage.setItem('language', language);
+    document.documentElement.lang = language;
+    try {
+      localStorage.setItem('language', language);
+    } catch {
+      /* unavailable storage */
+    }
   }, [language]);
 
   function setLanguage(lang: LanguageCode) {
     setLanguageState(lang);
   }
 
-  function t(key: string, params?: Record<string, string | number>): string {
-    const value = getNestedValue(language, key);
-    if (typeof value === 'string') {
-      return interpolate(value, params);
-    }
-    console.warn(`Translation missing: ${language}.${key}`);
-    return key;
-  }
+  const t = useCallback(
+    (key: string, params?: Record<string, string | number>): string => {
+      const value = getNestedValue(language, key);
+      if (typeof value === 'string') {
+        return interpolate(value, params);
+      }
+      console.warn(`Translation missing: ${language}.${key}`);
+      return key;
+    },
+    [language],
+  );
 
   return (
-    <I18nContext.Provider value={{ language, setLanguage, t }}>
-      {children}
-    </I18nContext.Provider>
+    <I18nContext.Provider value={{ language, setLanguage, t }}>{children}</I18nContext.Provider>
   );
 }
 

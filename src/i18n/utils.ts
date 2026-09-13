@@ -1,10 +1,7 @@
 import { translations } from './translations';
 import type { LanguageCode } from './translations';
 
-export function getNestedValue(
-  lang: LanguageCode,
-  path: string,
-): string | undefined {
+export function getNestedValue(lang: LanguageCode, path: string): string | undefined {
   const obj = translations[lang];
   const keys = path.split('.');
   let current: unknown = obj;

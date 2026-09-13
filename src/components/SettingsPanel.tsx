@@ -33,7 +33,7 @@ export function SettingsPanel({
       <div className="section-eyebrow">{t('ui.yourGame')}</div>
       <h2>{t('ui.chooseChallenge')}</h2>
       <p className="muted panel-intro">{t('ui.smallSteps')}</p>
-      <div className="levels" role="group" aria-label="Բարդության մակարդակ">
+      <div className="levels" role="group" aria-label={t('ui.difficulty')}>
         {(Object.keys(levels) as Mode[]).map((mode) => {
           const Icon = icons[mode];
           return (
@@ -51,7 +51,7 @@ export function SettingsPanel({
                   <span className={mode === 'custom' ? 'desktop-label' : undefined}>
                     {t(`modes.${mode}`)}
                   </span>
-                  {mode === 'custom' && <span className="mobile-label">Իմ խաղը</span>}
+                  {mode === 'custom' && <span className="mobile-label">{t('modes.custom')}</span>}
                 </strong>
                 <small>{t(`modeDescriptions.${mode}`)}</small>
               </span>

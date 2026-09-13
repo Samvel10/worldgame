@@ -1,7 +1,8 @@
+import { useI18n } from '../i18n';
 import type { CSSProperties } from 'react';
 import { evaluateGuess, letters } from '../game/engine';
 import type { Round, Status } from '../game/types';
-import { markNames, markSymbols } from '../game/presentation';
+import { markSymbols } from '../game/presentation';
 export function Board({
   round,
   draft,
@@ -13,6 +14,7 @@ export function Board({
   status: Status;
   errorId: number;
 }) {
+  const { t } = useI18n();
   const length = letters(round.answer.word).length;
   return (
     <div
@@ -24,7 +26,7 @@ export function Board({
         } as CSSProperties
       }
       role="group"
-      aria-label={`Խաղատախտակ՝ ${length} տառ, ${round.attempts} փորձ`}
+      aria-label={t('account.boardLabel',{length,attempts:round.attempts})}
     >
       {Array.from({ length: round.attempts }, (_, row) => {
         const guess = round.guesses[row];
@@ -36,7 +38,7 @@ export function Board({
             className={`tile-row ${current ? 'current' : ''} ${current && errorId ? 'shake' : ''}`}
             key={`${row}-${current ? errorId : 'done'}`}
             role="group"
-            aria-label={`Փորձ ${row + 1}${guess ? `՝ ${guess}` : ''}`}
+            aria-label={`${t('ui.round', { current: row + 1, total: round.attempts })}${guess ? `: ${guess}` : ''}`}
           >
             {Array.from({ length }, (_, col) => {
               const mark = marks?.[col];
@@ -46,7 +48,7 @@ export function Board({
                   style={{ '--delay': `${Math.min(col * 65, 700)}ms` } as CSSProperties}
                   key={col}
                   role="img"
-                  aria-label={`${col + 1}՝ ${chars[col] || 'դատարկ'}${mark ? `՝ ${markNames[mark]}` : ''}`}
+                  aria-label={`${col + 1}՝ ${chars[col] || t('account.emptyTile')}${mark ? `՝ ${t(`helpContent.${mark}`)}` : ''}`}
                 >
                   <span key={chars[col]}>{chars[col]}</span>
                   {mark && <small aria-hidden="true">{markSymbols[mark]}</small>}

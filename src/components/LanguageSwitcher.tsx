@@ -15,6 +15,9 @@ export function LanguageSwitcher() {
     return () => document.removeEventListener('mousedown', close);
   }, []);
 
+  useEffect(() => {
+    if (isOpen) root.current?.querySelector<HTMLButtonElement>('[aria-checked="true"]')?.focus();
+  }, [isOpen]);
   const languages: { code: LanguageCode; label: string }[] = [
     { code: 'hy', label: 'Հայերեն' },
     { code: 'en', label: 'English' },
@@ -24,6 +27,7 @@ export function LanguageSwitcher() {
   const handleLanguageSelect = (lang: LanguageCode) => {
     setLanguage(lang);
     setIsOpen(false);
+    root.current?.querySelector<HTMLButtonElement>('button')?.focus();
   };
 
   return (
@@ -46,13 +50,32 @@ export function LanguageSwitcher() {
         <Globe size={20} />
       </button>
       {isOpen && (
-        <div className="language-menu" role="menu">
+        <div
+          className="language-menu"
+          role="menu"
+          onKeyDown={(event) => {
+            const buttons = Array.from(
+              root.current?.querySelectorAll<HTMLButtonElement>('[role="menuitemradio"]') ?? [],
+            );
+            const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
+            if (event.key === 'Escape') {
+              setIsOpen(false);
+              root.current?.querySelector<HTMLButtonElement>('button')?.focus();
+            }
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+              event.preventDefault();
+              buttons[
+                (index + (event.key === 'ArrowDown' ? 1 : buttons.length - 1)) % buttons.length
+              ]?.focus();
+            }
+          }}
+        >
           {languages.map((lang) => (
             <button
               key={lang.code}
               className={`language-option ${language === lang.code ? 'active' : ''}`}
               onClick={() => handleLanguageSelect(lang.code)}
-              aria-pressed={language === lang.code}
+              aria-checked={language === lang.code}
               role="menuitemradio"
             >
               {lang.label}

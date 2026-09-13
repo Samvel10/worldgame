@@ -1,0 +1,37 @@
+# Runtime map
+
+This map follows source code, not previous completion claims. The graphify AST export is in `graphify-out/graph.json`; AST relationships alone do not prove runtime correctness.
+
+```mermaid
+flowchart TD
+  Site[Site: route and account state] --> Solo[App: local solo game]
+  Site --> Account[AccountPage: register/login/profile]
+  Site --> Battle[BattlePanel: one socket while on Battle page]
+  Account --> API[HTTP /api/session, register, login, logout, history]
+  API --> Store[accounts.mjs: async password hashing and hashed session tokens]
+  Store --> Disk[/var/lib/worldgame/accounts.json]
+  Battle --> WS[WebSocket /ws]
+  WS --> Session[Read HttpOnly account cookie or guest identity]
+  Session --> Rooms[One active room per socket]
+  Rooms --> Match[Four timed rounds]
+  Match --> Validate[Dictionary, length, attempts, repeated guess checks]
+  Validate --> Marks[Two-pass duplicate-letter evaluation]
+  Marks --> Private[Marks sent only to guessing player]
+  Match --> Scores[Public score and connection status]
+  Match --> Disk
+  Rooms --> Cleanup[Leave/close cancels abandoned timers]
+  Site --> I18n[Armenian / English / Russian]
+  SW[Service worker] --> Public[Bounded public asset cache]
+  SW -. never cache .-> API
+```
+
+## Deployment
+
+Apache serves `/opt/worldgame/current/dist` and proxies `/api/` plus `/ws` to the dedicated service on **127.0.0.1:8799**. Account data is outside releases in `/var/lib/worldgame`. Systemd runs an unprivileged `worldgame` user. Deployment keeps the preceding release and a timestamped backup; no broad `rsync --delete` is used against live data.
+
+## Remaining operating boundaries
+
+- One Node process and atomic JSON persistence; this is not a multi-node database deployment.
+- Rooms support 2–8 players. Public matchmaking joins a waiting room; its host starts when ready.
+- Reconnecting after a lost Battle connection returns to the lobby. Unfinished matches are not restored after process restart. Account sessions and completed history do survive restart.
+- Solo statistics are local to the device; Battle history belongs to the account.

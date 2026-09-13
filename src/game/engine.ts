@@ -74,7 +74,6 @@ export function chooseWord(
   if (!available.length) available = pool;
   const answer =
     available[Math.min(available.length - 1, Math.max(0, Math.floor(random() * available.length)))];
-  console.log(`Chosen word: ${answer.word} (${answer.difficulty})`);
   return {
     answer,
     history: [...recent.filter((word) => word !== answer.word), answer.word].slice(-2000),

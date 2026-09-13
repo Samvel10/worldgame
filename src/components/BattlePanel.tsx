@@ -1,8 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Copy, Crown, LogIn, Play, Radio, Shield, UserPlus, Users, Wifi, WifiOff, X } from 'lucide-react';
-import { answerForSeed, battleLevels, isBattleGuessCorrect } from '../game/battle';
+import { useEffect, useEffectEvent, useRef, useState, type CSSProperties } from 'react';
+import { Copy, Crown, LogIn, Play, Users, ArrowLeft, Radio } from 'lucide-react';
+import { letters, mergeKeyboard } from '../game/engine';
+import { deleteBackward, isArmenian, normalizeWord } from '../game/armenian';
+import type { Mark } from '../game/types';
+import { markSymbols } from '../game/presentation';
+import { Keyboard } from './Keyboard';
 import { useI18n } from '../i18n';
-
 type Player = {
   id: string;
   name: string;
@@ -10,329 +13,445 @@ type Player = {
   solved: boolean;
   finished: boolean;
   connected: boolean;
+  solvedCount: number;
 };
-type Message = { type: string; [key: string]: unknown };
-const BATTLE_URL =
-  import.meta.env.VITE_BATTLE_URL ??
-  (typeof window !== 'undefined'
-    ? `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws`
-    : 'ws://localhost:8787');
+type Guess = { guess: string; marks: Mark[] };
+type Round = { round: number; length: number; attempts: number; level: string; deadline: number };
 export function BattlePanel({ onClose }: { onClose: () => void }) {
   const { t } = useI18n();
   const socket = useRef<WebSocket | null>(null);
-  const [connected, setConnected] = useState(false);
-  const [name, setName] = useState('');
-  const [authUser, setAuthUser] = useState('');
-  const authUserRef = useRef('');
-  const [authPass, setAuthPass] = useState('');
-  const [authView, setAuthView] = useState<'welcome' | 'login' | 'register' | 'authenticated'>('welcome');
-  const [authError, setAuthError] = useState('');
-  const [roomId, setRoomId] = useState('');
-  const [players, setPlayers] = useState<Player[]>([]);
+  const [connection, setConnection] = useState('connecting');
+  const [retry, setRetry] = useState(0);
   const [myId, setMyId] = useState('');
+  const [name, setName] = useState('');
+  const [guest, setGuest] = useState(true);
+  const [roomId, setRoomId] = useState('');
+  const [joinCode, setJoinCode] = useState('');
+  const [hostId, setHostId] = useState('');
+  const [players, setPlayers] = useState<Player[]>([]);
   const [phase, setPhase] = useState('idle');
-  const [round, setRound] = useState(0);
-  const [length, setLength] = useState(5);
-  const [, setAttempts] = useState(7);
-  const [seed, setSeed] = useState<number | null>(null);
-  const [deadline, setDeadline] = useState(0);
-  const [draft, setDraft] = useState('');
-  const [, setWrong] = useState(0);
-  const [message, setMessage] = useState('');
   const [maxPlayers, setMaxPlayers] = useState(2);
-  const [timeLeft, setTimeLeft] = useState(0);
-  const answer = useMemo(
-    () => (seed === null ? null : answerForSeed(length, seed)),
-    [length, seed],
-  );
+  const [round, setRound] = useState<Round | null>(null);
+  const [guesses, setGuesses] = useState<Guess[]>([]);
+  const [draft, setDraft] = useState('');
+  const [error, setError] = useState('');
+  const [reveal, setReveal] = useState('');
+  const [now, setNow] = useState(() => Date.now());
+  const [pending, setPending] = useState(false);
+  const [copied, setCopied] = useState(false);
   useEffect(() => {
-    const ws = new WebSocket(BATTLE_URL);
-    socket.current = ws;
-    ws.onopen = () => {
-      setConnected(true);
-      ws.send(JSON.stringify({ type: 'guest' }));
-    };
-    ws.onclose = () => setConnected(false);
-    ws.onmessage = (event) => {
-      const msg = JSON.parse(event.data) as Message;
-      if (msg.type === 'session') {
-        const user = msg.user as { id: string; name?: string; guest?: boolean };
-        setMyId(String(user.id));
-        if (!user.guest) {
-          setName(user.name ?? authUserRef.current);
-          setAuthView('authenticated');
-          setAuthError('');
-        }
-      }
-      if (msg.type === 'room_created') setRoomId(String(msg.roomId));
-      if (msg.type === 'room_state') {
-        setPhase(String(msg.phase));
-        setRound(Number(msg.round));
-        setPlayers(msg.players as Player[]);
-        setMaxPlayers(Number(msg.maxPlayers));
-      }
-      if (msg.type === 'round_started') {
-        setPhase('playing');
-        setRound(Number(msg.round));
-        setLength(Number(msg.length));
-        setAttempts(Number(msg.attempts));
-        setSeed(Number(msg.seed));
-        setDeadline(Number(msg.deadline));
-        setDraft('');
-        setWrong(0);
-        setMessage('');
-      }
-      if (msg.type === 'guess_result') {
-        setMessage(msg.correct ? t('battle.correct') : t('battle.wrong'));
-      }
-      if (msg.type === 'round_finished') setMessage(t('battle.roundFinished'));
-      if (msg.type === 'error') {
-        const error = String(msg.message);
-        setMessage(error);
-        setAuthError(error);
-      }
-    };
-    return () => ws.close();
-  }, [t]);
-  useEffect(() => {
-    if (!deadline) return;
-    const timer = window.setInterval(
-      () => setTimeLeft(Math.max(0, Math.ceil((deadline - Date.now()) / 1000))),
-      250,
+    const ws = new WebSocket(
+      import.meta.env.VITE_BATTLE_URL ??
+        `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`,
     );
-    return () => window.clearInterval(timer);
-  }, [deadline]);
+    socket.current = ws;
+    ws.onopen = () => setConnection('online');
+    ws.onclose = () => {
+      setConnection('offline');
+      setPending(false);
+    };
+    ws.onerror = () => setConnection('offline');
+    ws.onmessage = (event) => {
+      const m = JSON.parse(event.data);
+      if (m.type === 'session') {
+        setMyId(m.playerId);
+        setName(m.user.name);
+        setGuest(m.user.guest);
+      }
+      if (m.type === 'joined') {
+        setMyId(m.playerId);
+        setPending(false);
+      }
+      if (m.type === 'left') {
+        setPhase('idle');
+        setRoomId('');
+        setPlayers([]);
+        setRound(null);
+        setPending(false);
+      }
+      if (m.type === 'room_state') {
+        setRoomId(m.roomId);
+        setHostId(m.hostId);
+        setPlayers(m.players);
+        setPhase(m.phase);
+        setMaxPlayers(m.maxPlayers);
+        setPending(false);
+      }
+      if (m.type === 'round_started') {
+        setRound(m);
+        setPhase('playing');
+        setGuesses([]);
+        setDraft('');
+        setReveal('');
+        setError('');
+        setPending(false);
+        setNow(Date.now());
+      }
+      if (m.type === 'guess_result') {
+        setGuesses((prev) => [...prev, { guess: m.guess, marks: m.marks }]);
+        setDraft('');
+        setPending(false);
+      }
+      if (m.type === 'round_finished') {
+        setReveal(m.answer);
+        setPending(false);
+      }
+      if (m.type === 'error') {
+        setError(m.code);
+        setPending(false);
+      }
+    };
+    return () => {
+      ws.onclose = null;
+      ws.onerror = null;
+      ws.onmessage = null;
+      ws.close();
+      socket.current = null;
+    };
+  }, [retry]);
+  useEffect(() => {
+    if (phase !== 'playing') return;
+    const timer = window.setInterval(() => setNow(Date.now()), 250);
+    return () => clearInterval(timer);
+  }, [phase]);
   function send(type: string, extra = {}) {
-    if (socket.current?.readyState === WebSocket.OPEN)
-      socket.current.send(JSON.stringify({ type, ...extra }));
+    if (socket.current?.readyState !== 1) return;
+    setError('');
+    socket.current.send(JSON.stringify({ type, ...extra }));
+  }
+  const me = players.find((p) => p.id === myId);
+  const finished = me?.finished ?? false;
+  const disabled = phase !== 'playing' || finished || pending || connection !== 'online';
+  function change(value: string) {
+    if (value && !isArmenian(value)) {
+      setError('armenianOnly');
+      return;
+    }
+    if (round && letters(value).length > round.length) {
+      setError('correctLength');
+      return;
+    }
+    setDraft(normalizeWord(value));
+    setError('');
   }
   function submit() {
-    if (!answer || phase !== 'playing' || !draft) return;
-    const correct = isBattleGuessCorrect(draft, answer);
-    send('submit_guess', { guess: draft, correct });
-    if (!correct) setWrong((n) => n + 1);
-    setDraft('');
+    if (disabled) return;
+    setPending(true);
+    send('submit_guess', { guess: draft });
   }
-  function authenticate(type: 'login' | 'register') {
-    const username = authUser.trim().toLowerCase();
-    if (!/^[a-z0-9_.-]{3,24}$/.test(username)) {
-      setAuthError(t('battle.usernameError'));
-      return;
-    }
-    if (authPass.length < 8) {
-      setAuthError(t('battle.passwordError'));
-      return;
-    }
-    setAuthError('');
-    send(type, { username, password: authPass });
+  function key(value: string) {
+    if (disabled) return;
+    if (value === 'Enter') submit();
+    else if (value === 'Backspace') change(deleteBackward(draft, draft.length, draft.length).value);
+    else change(draft + value);
   }
-  const me = players.find((player) => player.id === myId || player.id.startsWith(`${myId}-`));
+  const physicalKey = useEffectEvent((event: KeyboardEvent) => {
+    const target = event.target as HTMLElement;
+    if (
+      disabled ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.altKey ||
+      event.isComposing ||
+      target.closest('input,select,textarea,[contenteditable="true"]')
+    )
+      return;
+    if (target.closest('button,a') && (event.key === 'Enter' || event.key === ' ')) return;
+    if (event.key === 'Enter' || event.key === 'Backspace' || /^[Ա-Ֆա-ֆև]$/.test(event.key)) {
+      event.preventDefault();
+      key(event.key);
+    }
+  });
+  useEffect(() => {
+    const handle = (event: KeyboardEvent) => physicalKey(event);
+    window.addEventListener('keydown', handle);
+    return () => window.removeEventListener('keydown', handle);
+  }, []);
+  const keyboard = guesses.reduce(
+    (state, item) => mergeKeyboard(state, item.guess, item.marks),
+    {},
+  );
+  const timeLeft = round ? Math.max(0, Math.ceil((round.deadline - now) / 1000)) : 0;
+  const ranked = players.slice().sort((a, b) => b.score - a.score);
+  const errorKey = ['armenianOnly', 'correctLength', 'notInDictionary'].includes(error)
+    ? `validation.${error}`
+    : `account.errors.${error}`;
   return (
     <div className="battle-panel">
+      <a className="account-back" href="#home" onClick={onClose}>
+        <ArrowLeft size={17} />
+        {t('account.home')}
+      </a>
       <div className="battle-top">
         <div>
           <span className="section-eyebrow">
-            <Radio size={13} /> {t('battle.badge')}
+            <Radio size={14} />
+            BATTLE
           </span>
-          <h2>{t('battle.title')}</h2>
+          <h1>{t('battle.title')}</h1>
           <p className="muted">{t('battle.subtitle')}</p>
         </div>
-        <button className="icon-button" aria-label={t('ui.closeWindow')} onClick={onClose}>
-          <X size={21} />
-        </button>
+        <span className={`connection ${connection}`}>{t(`account.${connection}`)}</span>
       </div>
-      {!connected ? (
+      {connection === 'offline' ? (
         <div className="battle-offline">
-          <WifiOff size={32} />
-          <h3>{t('battle.offlineTitle')}</h3>
-          <p>{t('battle.offlineText')}</p>
-          <p className="muted">{BATTLE_URL}</p>
+          <h2>{t('battle.offlineTitle')}</h2>
+          <p>{t('account.disconnected')}</p>
+          <button
+            className="primary"
+            onClick={() => {
+              setPhase('idle');
+              setConnection('connecting');
+              setRetry((n) => n + 1);
+            }}
+          >
+            {t('errors.retry')}
+          </button>
         </div>
       ) : phase === 'idle' ? (
-        <div className="battle-lobby-form">
-          {authView === 'welcome' ? (
-            <div className="battle-auth-card">
-              <div className="auth-card-icon"><UserPlus size={22} /></div>
-              <h3>{t('battle.accountTitle')}</h3>
-              <p>{t('battle.accountText')}</p>
-              <div className="auth-card-actions">
-                <button className="primary" onClick={() => setAuthView('register')}><UserPlus size={16} />{t('battle.register')}</button>
-                <button className="secondary" onClick={() => setAuthView('login')}><LogIn size={16} />{t('battle.login')}</button>
-              </div>
-              <button className="guest-link" onClick={() => { send('guest', { name }); setAuthView('authenticated'); }}>{t('battle.guestContinue')}</button>
-            </div>
-          ) : authView === 'authenticated' ? (
-            <div className="battle-auth-card battle-auth-ready">
-              <div className="auth-card-icon"><Shield size={22} /></div>
-              <h3>{myId.startsWith('guest-') ? t('battle.guestReady') : t('battle.accountReady')}</h3>
-              <p>{name || t('battle.nicknamePlaceholder')}</p>
-              <button className="auth-back" onClick={() => setAuthView('welcome')}>{t('battle.switchAccount')}</button>
-            </div>
-          ) : (
-            <div className="battle-auth-card auth-form-card">
-              <button className="auth-back" onClick={() => { setAuthView('welcome'); setAuthError(''); }}>← {t('battle.back')}</button>
-              <h3>{authView === 'register' ? t('battle.registerTitle') : t('battle.loginTitle')}</h3>
-              <p>{authView === 'register' ? t('battle.registerText') : t('battle.loginText')}</p>
-              <label>{t('battle.username')}<input autoFocus value={authUser} onChange={(e) => { setAuthUser(e.target.value); authUserRef.current = e.target.value; }} autoComplete="username" /></label>
-              <label>{t('battle.password')}<input type="password" value={authPass} onChange={(e) => setAuthPass(e.target.value)} autoComplete={authView === 'register' ? 'new-password' : 'current-password'} /></label>
-              {authError && <p className="auth-error" role="alert">{authError}</p>}
-              <button className="primary auth-submit" onClick={() => authenticate(authView)}>{authView === 'register' ? t('battle.register') : t('battle.login')}</button>
-              <small>{t('battle.accountHint')}</small>
-            </div>
-          )}
-          <div className="battle-lobby-options">
-            <label>{t('battle.nickname')}<input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('battle.nicknamePlaceholder')} maxLength={32} /></label>
-            <label>{t('battle.players')}<select value={maxPlayers} onChange={(e) => setMaxPlayers(Number(e.target.value))}>{[2, 3, 4, 5, 6, 7, 8].map((n) => <option key={n} value={n}>{n}</option>)}</select></label>
-          </div>
-          <div className="battle-actions">
+        <div className="battle-lobby-grid">
+          <section className="lobby-card">
+            <h2>{t('battle.create')}</h2>
+            <p>{t('account.createText')}</p>
+            {guest ? (
+              <label>
+                {t('battle.nickname')}
+                <input value={name} maxLength={32} onChange={(e) => setName(e.target.value)} />
+              </label>
+            ) : (
+              <p className="signed-label">
+                {name} · {t('account.signedIn')}
+              </p>
+            )}
+            <label>
+              {t('battle.players')}
+              <select value={maxPlayers} onChange={(e) => setMaxPlayers(Number(e.target.value))}>
+                {[2, 3, 4, 5, 6, 7, 8].map((n) => (
+                  <option key={n}>{n}</option>
+                ))}
+              </select>
+            </label>
             <button
               className="primary"
+              disabled={connection !== 'online' || pending}
               onClick={() => {
-                if (!myId || myId.startsWith('guest-')) send('guest', { name });
+                if (guest) send('guest', { name });
+                setPending(true);
                 send('create_room', { maxPlayers });
               }}
             >
-              <Users size={17} />
+              <Users size={18} />
               {t('battle.create')}
             </button>
-            <div className="join-row">
-              <input
-                value={roomId}
-                onChange={(e) => setRoomId(e.target.value.toUpperCase())}
-                placeholder={t('battle.roomCode')}
-                maxLength={8}
-              />
-              <button
-                className="secondary"
-                onClick={() => {
-                  if (!myId || myId.startsWith('guest-')) send('guest', { name });
-                  send('join_room', { roomId });
-                }}
-              >
-                <LogIn size={17} />
+          </section>
+          <section className="lobby-card">
+            <h2>{t('battle.join')}</h2>
+            <p>{t('account.joinText')}</p>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (guest) send('guest', { name });
+                setPending(true);
+                send('join_room', { roomId: joinCode });
+              }}
+            >
+              <label>
+                {t('battle.roomCode')}
+                <input
+                  required
+                  pattern="[A-Za-z0-9]{8}"
+                  minLength={8}
+                  maxLength={8}
+                  value={joinCode}
+                  onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                />
+              </label>
+              <button className="secondary" disabled={connection !== 'online' || pending}>
+                <LogIn size={18} />
                 {t('battle.join')}
               </button>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="battle-room">
-          <div className="room-code">
-            <span>
-              <Shield size={17} />
-              {t('battle.room')} <strong>{roomId}</strong>
-            </span>
-            <button className="text-button" onClick={() => navigator.clipboard?.writeText(roomId)}>
-              <Copy size={15} />
-              {t('battle.copy')}
-            </button>
-          </div>
-          <div className="player-list" aria-label={t('battle.players')}>
-            <h3>
-              <Users size={16} />
-              {players.length} / {maxPlayers} {t('battle.players')}
-            </h3>
-            {players.map((player) => (
-              <div className={`player-row ${player.id === me?.id ? 'me' : ''}`} key={player.id}>
-                <span className="player-avatar">{player.name.slice(0, 1).toUpperCase()}</span>
-                <span>
-                  {player.name}
-                  {player.id === players[0]?.id && <Crown size={13} />}
-                </span>
-                <strong>{player.score}</strong>
-                <span className={`presence ${player.connected ? 'online' : ''}`} />
-              </div>
-            ))}
-          </div>
-          {phase === 'lobby' && (
-            <div className="battle-start">
-              <p>{players.length < 2 ? t('battle.waiting') : t('battle.ready')}</p>
+            </form>
+            <div className="quick-match">
+              <p>{t('account.quickText')}</p>
               <button
-                className="primary"
-                disabled={players.length < 2 || myId !== players[0]?.id}
-                onClick={() => send('start_battle')}
+                className="text-button"
+                disabled={connection !== 'online' || pending}
+                onClick={() => {
+                  if (guest) send('guest', { name });
+                  setPending(true);
+                  send('quick_match', { maxPlayers });
+                }}
               >
-                <Play size={17} />
-                {t('battle.start')}
+                {t('account.quickMatch')}
               </button>
             </div>
-          )}
-          {phase === 'playing' && (
-            <div className="battle-round">
-              <div className="battle-round-meta">
-                <span>
-                  {t(`modes.${battleLevels[round]?.difficulty ?? 'easy'}`)} ·{' '}
-                  {t('ui.round', { current: round + 1, total: battleLevels.length })}
-                </span>
-                <strong>{timeLeft}s</strong>
-              </div>
-              <div className="battle-progress">
-                <span style={{ width: `${Math.max(0, Math.min(100, (timeLeft / 90) * 100))}%` }} />
-              </div>
-              <div className="battle-scoreline">
-                <span>{t('battle.solveFirst')}</span>
-                <strong>
-                  {me?.score ?? 0} {t('battle.points')}
-                </strong>
-              </div>
-              <div className="battle-entry">
-                <input
-                  autoFocus
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      submit();
-                    }
-                  }}
-                  placeholder={t('ui.inputPlaceholder', { count: length })}
-                />
-                <button className="primary" onClick={submit}>
-                  {t('battle.submit')}
-                </button>
-              </div>
-              <p className="battle-message" role="status">
-                {message || t('battle.live')}
-              </p>
-              <div className="battle-scoreboard">
-                {players
-                  .slice()
-                  .sort((a, b) => b.score - a.score)
-                  .map((player, index) => (
-                    <div key={player.id}>
-                      <span>{index + 1}</span>
-                      <span>{player.name}</span>
-                      <strong>{player.score}</strong>
+          </section>
+        </div>
+      ) : (
+        <div className="battle-match">
+          <div className="room-code">
+            <span>
+              {t('battle.room')} <strong>{roomId}</strong>
+            </span>
+            <button
+              className="text-button"
+              onClick={() => {
+                void navigator.clipboard
+                  .writeText(roomId)
+                  .then(() => setCopied(true))
+                  .catch(() => setError('clipboard'));
+              }}
+            >
+              <Copy size={16} />
+              {t(copied ? 'account.copied' : 'battle.copy')}
+            </button>
+            <button className="text-button" onClick={() => send('leave_room')}>
+              {t('account.leave')}
+            </button>
+          </div>
+          <div className="battle-match-grid">
+            <section className="battle-game">
+              {phase === 'lobby' ? (
+                <div className="battle-waiting">
+                  <Users size={44} />
+                  <h2>{t('account.waitingTitle')}</h2>
+                  <p>{t('account.shareCode')}</p>
+                  <strong className="invitation-code">{roomId}</strong>
+                  <p>{players.length < 2 ? t('battle.waiting') : t('battle.ready')}</p>
+                  {hostId === myId ? (
+                    <button
+                      className="primary"
+                      disabled={players.length < 2 || pending}
+                      onClick={() => {
+                        setPending(true);
+                        send('start_battle');
+                      }}
+                    >
+                      <Play size={18} />
+                      {t('battle.start')}
+                    </button>
+                  ) : (
+                    <p>{t('account.waitHost')}</p>
+                  )}
+                </div>
+              ) : (
+                round && (
+                  <>
+                    <div className="battle-round-meta">
+                      <strong>{t(`modes.${round.level}`)}</strong>
+                      <span>{t('ui.round', { current: round.round + 1, total: 4 })}</span>
+                      <strong>
+                        {phase === 'playing'
+                          ? `${timeLeft} ${t('account.seconds')}`
+                          : t('battle.roundFinished')}
+                      </strong>
                     </div>
-                  ))}
-              </div>
-            </div>
-          )}
-          {phase === 'between' && (
-            <div className="battle-finished">
-              <Wifi size={26} />
-              <h3>{t('battle.next')}</h3>
-              <p>{message}</p>
-            </div>
-          )}
-          {phase === 'finished' && (
-            <div className="battle-finished">
-              <Crown size={31} />
-              <h3>{t('battle.over')}</h3>
-              {players
-                .slice()
-                .sort((a, b) => b.score - a.score)
-                .map((player, index) => (
-                  <p key={player.id}>
-                    {index + 1}. {player.name} — <strong>{player.score}</strong>
-                  </p>
-                ))}
-            </div>
-          )}
+                    <div
+                      className={`board ${round.length > 10 ? 'long-board' : ''}`}
+                      style={{ '--letters': round.length, '--tile-size': '48px' } as CSSProperties}
+                      aria-label={t('ui.gameLabel')}
+                    >
+                      {Array.from({ length: round.attempts }, (_, row) => {
+                        const result = guesses[row];
+                        const chars = letters(
+                          result?.guess ?? (row === guesses.length ? draft : ''),
+                        );
+                        return (
+                          <div className="tile-row" key={row}>
+                            {Array.from({ length: round.length }, (_, col) => {
+                              const mark = result?.marks[col];
+                              return (
+                                <div
+                                  key={col}
+                                  className={`tile ${mark ?? 'neutral'} ${chars[col] ? 'filled' : ''}`}
+                                  aria-label={`${chars[col] ?? ''} ${mark ? t(`helpContent.${mark}`) : ''}`}
+                                >
+                                  <span>{chars[col]}</span>
+                                  {mark && <small>{markSymbols[mark]}</small>}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {phase === 'playing' && !finished ? (
+                      <>
+                        <form
+                          className="word-entry"
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            submit();
+                          }}
+                        >
+                          <input
+                            autoFocus
+                            key={round.round}
+                            placeholder={t('ui.inputPlaceholder', { count: round.length })}
+                            aria-label={t('ui.inputLabel')}
+                            value={draft}
+                            onChange={(e) => change(e.target.value)}
+                            autoComplete="off"
+                          />
+                          <button disabled={pending}>{t('ui.check')}</button>
+                        </form>
+                        <Keyboard state={keyboard} onKey={key} disabled={disabled} />
+                      </>
+                    ) : (
+                      <p className="battle-result-note">
+                        {reveal
+                          ? t('ui.answer', { word: reveal })
+                          : me?.solved
+                            ? t('battle.correct')
+                            : t('account.attemptsUsed')}
+                      </p>
+                    )}
+                    {phase === 'finished' && (
+                      <div className="battle-final">
+                        <Crown size={28} />
+                        <h2>{t('battle.over')}</h2>
+                        <p>
+                          {ranked
+                            .filter((p) => p.score === ranked[0]?.score)
+                            .map((p) => p.name)
+                            .join(', ')}
+                        </p>
+                        <button className="primary" onClick={() => send('leave_room')}>
+                          {t('playAgain')}
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )
+              )}
+            </section>
+            <aside className="battle-scoreboard">
+              <h2>{t('account.scoreboard')}</h2>
+              <p>
+                {players.length} / {maxPlayers} {t('battle.players')}
+              </p>
+              {ranked.map((p) => (
+                <div className={`player-row ${p.id === myId ? 'me' : ''}`} key={p.id}>
+                  <span className="player-avatar">{p.name.slice(0, 1)}</span>
+                  <span>
+                    {p.name}
+                    <small>
+                      {p.solvedCount} / 4 · {t(p.connected ? 'account.online' : 'account.offline')}
+                    </small>
+                  </span>
+                  <strong>{p.score}</strong>
+                </div>
+              ))}
+              <p className="scoring-note">{t('account.scoring')}</p>
+            </aside>
+          </div>
         </div>
       )}
-      <p className="battle-footnote">{t('battle.privacy')}</p>
+      {error && (
+        <p className="auth-error" role="alert">
+          {t(errorKey, { length: round?.length ?? 0 })}
+        </p>
+      )}
     </div>
   );
 }

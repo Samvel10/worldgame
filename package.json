@@ -16,8 +16,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "battle": "node server/index.mjs",
-    "dev:all": "concurrently \"npm run battle\" \"npm run dev\"",
-    "test:battle": "node scripts/test-battle.mjs"
+    "dev:all": "node scripts/dev.mjs",
+    "test:battle": "node scripts/test-battle.mjs",
+    "test:audit": "playwright test --config playwright.audit.config.ts"
   },
   "dependencies": {
     "@fontsource/noto-sans-armenian": "^5.3.0",

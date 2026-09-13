@@ -18,7 +18,7 @@ export function Help() {
             <small aria-hidden="true">{markSymbols[mark]}</small>
           </div>
           <span>
-            <strong>{t(`help.${mark}`)}</strong>
+            <strong>{t(`helpContent.${mark}`)}</strong>
             <small>{examples[i][2]}</small>
           </span>
         </div>
@@ -26,17 +26,11 @@ export function Help() {
       <h3>{t('helpContent.rulesTitle')}</h3>
       <ul>
         <li>{t('helpContent.ruleDictionary')}</li>
-        <li>
-          {t('helpContent.ruleEv')}
-        </li>
+        <li>{t('helpContent.ruleEv')}</li>
         <li>{t('helpContent.ruleDuplicates')}</li>
-        <li>
-          {t('helpContent.ruleKeyboard')}
-        </li>
+        <li>{t('helpContent.ruleKeyboard')}</li>
         <li>{t('helpContent.ruleHint')}</li>
-        <li>
-          {t('helpContent.ruleStats')}
-        </li>
+        <li>{t('helpContent.ruleStats')}</li>
       </ul>
       <p className="source-note">
         {t('helpContent.sourcePrefix')}{' '}

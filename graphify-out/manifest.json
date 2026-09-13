@@ -1,0 +1,254 @@
+{
+  "/home/samo/Documents/ChatGPT/game/eslint.config.js": {
+    "mtime": 1789311414.4394143,
+    "hash": "f26debb991441e4ce48fe200e39e250b"
+  },
+  "/home/samo/Documents/ChatGPT/game/playwright.config.ts": {
+    "mtime": 1789325170.8831341,
+    "hash": "108a7288986afe29409e79734e183235"
+  },
+  "/home/samo/Documents/ChatGPT/game/vite.config.ts": {
+    "mtime": 1789325322.4408386,
+    "hash": "3e1c4020dcee30423fac10297d6d66a0"
+  },
+  "/home/samo/Documents/ChatGPT/game/playwright.audit.config.ts": {
+    "mtime": 1789325372.4379427,
+    "hash": "41faf6388f4749570ba91e272271746f"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/Site.tsx": {
+    "mtime": 1789325322.2358215,
+    "hash": "11412289c84e50944460a0a29adb5c96"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/vite-env.d.ts": {
+    "mtime": 1789296966.381313,
+    "hash": "0352474ba2918efe13895edbc3780d94"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/App.tsx": {
+    "mtime": 1789325321.9948015,
+    "hash": "30d24249109ea647eb764a1a137eacc2"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/main.tsx": {
+    "mtime": 1789328385.0716445,
+    "hash": "0b0111fd00c2add0d3d772aba887727d"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/data/dictionary.ts": {
+    "mtime": 1789297242.5264118,
+    "hash": "cf2424e17cec07749bfbd9f0f83fb999"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/hooks/useGame.ts": {
+    "mtime": 1789325079.9202821,
+    "hash": "785e7f398293109726e985af4be2206d"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/components/LanguageSwitcher.tsx": {
+    "mtime": 1789325322.0918095,
+    "hash": "6d779b511530506c07ed0ac01c7930d4"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/components/BattlePanel.tsx": {
+    "mtime": 1789328012.8222759,
+    "hash": "eabbc11b2f06d91d4c7933d6395e93c4"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/components/Statistics.tsx": {
+    "mtime": 1789325079.8482728,
+    "hash": "862927347a6fbd9e6b419fe34cf8ec01"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/components/Keyboard.tsx": {
+    "mtime": 1789325079.3925586,
+    "hash": "9ac1a26f7f6ae1e4f797b3f4c6bcfb85"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/components/Board.tsx": {
+    "mtime": 1789328220.7869294,
+    "hash": "5c9ccc9118d7474a0ed18610c8ec2b6f"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/components/Help.tsx": {
+    "mtime": 1789325079.8102677,
+    "hash": "a6466be37598d8a6f07d1bf1e5742e8e"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/components/SettingsPanel.tsx": {
+    "mtime": 1789325321.6542392,
+    "hash": "6f4c2e30f586f6406afc76c937a9ac80"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/components/AccountPage.tsx": {
+    "mtime": 1789325079.7632616,
+    "hash": "898fc064482cfff7023b382d30988e9e"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/components/Modal.tsx": {
+    "mtime": 1789325079.8292701,
+    "hash": "e8b80773123467de59664879c74dfade"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/i18n/translations.test.ts": {
+    "mtime": 1789325322.1968184,
+    "hash": "b3fb85995a2c54385c07adbe094c652b"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/i18n/index.tsx": {
+    "mtime": 1789325079.9222825,
+    "hash": "26d668bc634d9ab444001c16a55572cc"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/i18n/utils.ts": {
+    "mtime": 1789325079.9542866,
+    "hash": "e522e12f8fb37ee0bf7f11deea248590"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/i18n/provider.tsx": {
+    "mtime": 1789325079.9282832,
+    "hash": "7072ad9cac800a68fa514ff74d5440f4"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/i18n/translations.ts": {
+    "mtime": 1789328385.197645,
+    "hash": "5f248861c50a9d3b47d2f3aa15a94d71"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/game/storage.ts": {
+    "mtime": 1789297335.8557944,
+    "hash": "c7e28a71e0ca7e077799787cd218409a"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/game/presentation.ts": {
+    "mtime": 1789297335.8477943,
+    "hash": "ad1d34efc75a72aa2157861f3b9c18c4"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/game/armenian.ts": {
+    "mtime": 1789297724.9770265,
+    "hash": "696f2bbe9b1ad4b1dceb5e5d2a232656"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/game/engine.test.ts": {
+    "mtime": 1789297725.015248,
+    "hash": "66fec4d6f778cbcc51ee1d27c680e26f"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/game/battle.test.ts": {
+    "mtime": 1789325079.8622746,
+    "hash": "ac4f85f26444aa4366c15330c3c98e7f"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/game/engine.ts": {
+    "mtime": 1789325079.3930347,
+    "hash": "6eb317a76a93b0eb2205ae29ac0ddb7f"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/game/battle.ts": {
+    "mtime": 1789310986.254844,
+    "hash": "61463d47e0cdcd703054f4f118ad778e"
+  },
+  "/home/samo/Documents/ChatGPT/game/src/game/types.ts": {
+    "mtime": 1789297335.8587945,
+    "hash": "7803482dc44f6971bf3095888c1afe90"
+  },
+  "/home/samo/Documents/ChatGPT/game/scripts/dev.mjs": {
+    "mtime": 1789328119.5656488,
+    "hash": "1c85f2271e592a374d8f3743db56d81a"
+  },
+  "/home/samo/Documents/ChatGPT/game/scripts/build-dictionary.mjs": {
+    "mtime": 1789297335.980795,
+    "hash": "4267e3fe06ead040cc28e47ba236fb01"
+  },
+  "/home/samo/Documents/ChatGPT/game/scripts/check-dictionary.mjs": {
+    "mtime": 1789297335.985795,
+    "hash": "e47b789de9331a3195d042eee9d09c7b"
+  },
+  "/home/samo/Documents/ChatGPT/game/scripts/capture-preview.mjs": {
+    "mtime": 1789297725.0680277,
+    "hash": "fa618e25b69f4a6fc8b05708ad817714"
+  },
+  "/home/samo/Documents/ChatGPT/game/scripts/test-battle.mjs": {
+    "mtime": 1789328012.9602764,
+    "hash": "4c641f57eec2e9b5cc7ab128295a6ee2"
+  },
+  "/home/samo/Documents/ChatGPT/game/tests/audit.spec.ts": {
+    "mtime": 1789328385.2806454,
+    "hash": "4c7780096162dd494c3e64bcf5f33402"
+  },
+  "/home/samo/Documents/ChatGPT/game/tests/game.spec.ts": {
+    "mtime": 1789297660.819025,
+    "hash": "8915465dc0c612be36913ee1631a36d1"
+  },
+  "/home/samo/Documents/ChatGPT/game/server/index.mjs": {
+    "mtime": 1789328012.890276,
+    "hash": "a1f09a6aa02709aedd2127aa17de1d29"
+  },
+  "/home/samo/Documents/ChatGPT/game/server/accounts.mjs": {
+    "mtime": 1789328012.860276,
+    "hash": "0e5038968428b23da668d156e637be2b"
+  },
+  "/home/samo/Documents/ChatGPT/game/public/sw.js": {
+    "mtime": 1789328327.6259894,
+    "hash": "597b3f9c98ba32dbe0bd9bbbc47f8fb8"
+  },
+  "/home/samo/Documents/ChatGPT/game/README.md": {
+    "mtime": 1789328119.0266469,
+    "hash": "77d583f378e63d9dab1ffb91afb1297a"
+  },
+  "/home/samo/Documents/ChatGPT/game/index.html": {
+    "mtime": 1789311279.1748223,
+    "hash": "36d1c2db2366e786300cd70ccfc13f55"
+  },
+  "/home/samo/Documents/ChatGPT/game/docs/ARCHITECTURE.md": {
+    "mtime": 1789325486.2046556,
+    "hash": "b8a65a4491d51e7c5c448ea2b38de6bd"
+  },
+  "/home/samo/Documents/ChatGPT/game/docs/SETUP_LOG.md": {
+    "mtime": 1789328251.7441342,
+    "hash": "c2a761a8deef46f4019ba0d37eeb0ecf"
+  },
+  "/home/samo/Documents/ChatGPT/game/docs/AUDIT.md": {
+    "mtime": 1789328251.742134,
+    "hash": "56ef9f5f7b64a5b2a7a79365c3243109"
+  },
+  "/home/samo/Documents/ChatGPT/game/docs/DICTIONARY.md": {
+    "mtime": 1789297335.3598063,
+    "hash": "7672363820035de7dcf0442ebf24870d"
+  },
+  "/home/samo/Documents/ChatGPT/game/server/README.md": {
+    "mtime": 1789328119.5486486,
+    "hash": "3588af14735e5aa767ba58cd3b556885"
+  },
+  "/home/samo/Documents/ChatGPT/game/docs/screenshots/battle-desktop.png": {
+    "mtime": 1789328229.1920497,
+    "hash": "5ad3941e07651222bba8d879c23a4e9f"
+  },
+  "/home/samo/Documents/ChatGPT/game/docs/screenshots/desktop.png": {
+    "mtime": 1789328354.1185243,
+    "hash": "d4f52e0b4c009436fa8779420c985283"
+  },
+  "/home/samo/Documents/ChatGPT/game/docs/screenshots/account-desktop.png": {
+    "mtime": 1789328230.8030558,
+    "hash": "579cdb91fd3e39c7d0d5d794dbcfdbb4"
+  },
+  "/home/samo/Documents/ChatGPT/game/docs/screenshots/default-desktop.png": {
+    "mtime": 1789297573.1994414,
+    "hash": "f58e036f38f1966d61a5ac9da0aeeca6"
+  },
+  "/home/samo/Documents/ChatGPT/game/docs/screenshots/dark.png": {
+    "mtime": 1789328357.9765394,
+    "hash": "fdd4e1c53ad6c1e5c43f64a9f1fcbfba"
+  },
+  "/home/samo/Documents/ChatGPT/game/docs/screenshots/account-mobile.png": {
+    "mtime": 1789328231.3330576,
+    "hash": "0414d9f0281cc0582a2f7e24525f2007"
+  },
+  "/home/samo/Documents/ChatGPT/game/docs/screenshots/mobile-long-scored.png": {
+    "mtime": 1789297574.631554,
+    "hash": "25c36ee141400625379bfdf347ec25c0"
+  },
+  "/home/samo/Documents/ChatGPT/game/docs/screenshots/victory-mobile.png": {
+    "mtime": 1789297576.1206942,
+    "hash": "034ac3fb43384a599a12d15893083276"
+  },
+  "/home/samo/Documents/ChatGPT/game/docs/screenshots/battle-mobile.png": {
+    "mtime": 1789328229.2410498,
+    "hash": "03d92106844214f9dcd1a4f079e065b7"
+  },
+  "/home/samo/Documents/ChatGPT/game/docs/screenshots/mobile-long.png": {
+    "mtime": 1789328359.0055432,
+    "hash": "1bbf5613b4a67b3e4e296d6f3c6eecda"
+  },
+  "/home/samo/Documents/ChatGPT/game/docs/screenshots/mobile.png": {
+    "mtime": 1789328358.19354,
+    "hash": "b6227d2426f3c087b99c57c1f6fd991e"
+  },
+  "/home/samo/Documents/ChatGPT/game/public/icon-512.png": {
+    "mtime": 1789325450.820391,
+    "hash": "2fd9f0202b79239ba22f79e23ecabebc"
+  },
+  "/home/samo/Documents/ChatGPT/game/public/favicon.svg": {
+    "mtime": 1789296187.8598485,
+    "hash": "d107d6f44b157f80e64f0fe997ae9a29"
+  },
+  "/home/samo/Documents/ChatGPT/game/public/icon-192.png": {
+    "mtime": 1789325450.7723877,
+    "hash": "f9331773c96f83df14dfc289a86ad1b7"
+  }
+}

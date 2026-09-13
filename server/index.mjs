@@ -1,289 +1,313 @@
 import { createServer } from 'node:http';
 import { WebSocketServer } from 'ws';
-import { randomBytes, scryptSync, timingSafeEqual, randomInt } from 'node:crypto';
+import { randomBytes, randomInt } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-
-const PORT = Number(process.env.PORT ?? 8787);
-const DATA_DIR = process.env.BARRIK_DATA_DIR ?? path.resolve('server/data');
-const DB_PATH = path.join(DATA_DIR, 'accounts.json');
-const answerData = JSON.parse(fs.readFileSync(path.resolve('src/data/answers.json'), 'utf8'));
+import { accountStore } from './accounts.mjs';
+const store = accountStore(process.env.BARRIK_DATA_DIR ?? path.resolve('server/data'));
+const normalize = (s) => s.normalize('NFC').toLowerCase().replace(/եւ|եվ/g, 'և');
+const letters = (s) => normalize(s).match(/ու|և|[ա-ֆ]/g) ?? [];
+const answers = JSON.parse(fs.readFileSync('src/data/answers.json', 'utf8'));
+const dictionary = new Set(
+  JSON.parse(fs.readFileSync('src/data/accepted.json', 'utf8')).map(normalize),
+);
 const rounds = [
   { level: 'easy', length: 5, attempts: 7 },
   { level: 'medium', length: 7, attempts: 6 },
   { level: 'hard', length: 10, attempts: 5 },
   { level: 'expert', length: 14, attempts: 6 },
 ];
-const rooms = new Map();
-const sockets = new Map();
-fs.mkdirSync(DATA_DIR, { recursive: true });
-function loadAccounts() {
-  try {
-    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
-  } catch {
-    return {};
-  }
+const duration = process.env.NODE_ENV === 'test' ? Number(process.env.ROUND_MS ?? 10000) : 90000;
+const pause = process.env.NODE_ENV === 'test' ? 100 : 4000;
+const rooms = new Map(),
+  sockets = new Set();
+function send(ws, m) {
+  if (ws?.readyState === 1) ws.send(JSON.stringify(m));
 }
-let accounts = loadAccounts();
-function saveAccounts() {
-  const tmp = `${DB_PATH}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify(accounts));
-  fs.renameSync(tmp, DB_PATH);
+function broadcast(room, m) {
+  for (const p of room.players.values()) send(p.socket, m);
 }
-function send(ws, message) {
-  if (ws.readyState === 1) ws.send(JSON.stringify(message));
-}
-function broadcast(room, message) {
-  for (const player of room.players.values()) send(player.socket, message);
-}
-function cleanName(name) {
-  return String(name ?? '')
-    .trim()
-    .slice(0, 32)
-    .replace(/[<>]/g, '');
-}
-function validRoomCode(code) {
-  return /^[A-Z0-9]{5,8}$/.test(code);
-}
-function hashPassword(password, salt = randomBytes(16).toString('hex')) {
-  return `${salt}:${scryptSync(password, salt, 64).toString('hex')}`;
-}
-function verifyPassword(password, stored) {
-  try {
-    const [salt, hex] = stored.split(':');
-    return timingSafeEqual(scryptSync(password, salt, 64), Buffer.from(hex, 'hex'));
-  } catch {
-    return false;
-  }
-}
-function userFrom(ws) {
-  return ws.user ?? { id: `guest-${ws.id}`, name: ws.guestName, guest: true };
-}
-function roomState(room) {
+function snapshot(room) {
   return {
     type: 'room_state',
     roomId: room.id,
     hostId: room.hostId,
     phase: room.phase,
     round: room.round,
-    players: [...room.players.values()].map((p) => ({
-      id: p.id,
-      name: p.name,
-      score: p.score,
-      solved: p.solved,
-      finished: p.finished,
-      connected: p.socket.readyState === 1,
-    })),
-    totalRounds: rounds.length,
+    totalRounds: 4,
     maxPlayers: room.maxPlayers,
+    players: [...room.players.values()].map(
+      ({ id, name, score, solved, finished, socket, solvedCount }) => ({
+        id,
+        name,
+        score,
+        solved,
+        finished,
+        solvedCount,
+        connected: socket?.readyState === 1,
+      }),
+    ),
   };
 }
-function sendState(room) {
-  broadcast(room, roomState(room));
+function publish(room) {
+  broadcast(room, snapshot(room));
 }
-function chooseAnswer(length, seed) {
-  const pool = answerData.filter(
-    (entry) => (entry.word.match(/ու|և|[ա-ֆ]/g) ?? []).length === length,
+function remove(ws) {
+  const room = rooms.get(ws.roomId);
+  ws.roomId = null;
+  if (!room) return;
+  const p = [...room.players.values()].find((p) => p.socket === ws);
+  if (!p) return;
+  if (room.phase === 'lobby') {
+    room.players.delete(p.id);
+    if (room.hostId === p.id) room.hostId = room.players.keys().next().value;
+  } else {
+    p.socket = null;
+    p.finished = true;
+  }
+  if (![...room.players.values()].some((p) => p.socket?.readyState === 1)) {
+    clearTimeout(room.timer);
+    rooms.delete(room.id);
+    return;
+  }
+  publish(room);
+  if (room.phase === 'playing' && [...room.players.values()].every((p) => p.finished)) finish(room);
+}
+function evaluate(guess, answer) {
+  const a = letters(answer),
+    g = letters(guess),
+    marks = g.map(() => 'absent'),
+    counts = {};
+  a.forEach((c, i) => {
+    if (c === g[i]) marks[i] = 'correct';
+    else counts[c] = (counts[c] ?? 0) + 1;
+  });
+  g.forEach((c, i) => {
+    if (marks[i] !== 'correct' && counts[c] > 0) {
+      marks[i] = 'present';
+      counts[c]--;
+    }
+  });
+  return marks;
+}
+function start(room) {
+  if (!rooms.has(room.id)) return;
+  clearTimeout(room.timer);
+  const config = rounds[room.round];
+  const pool = answers.filter(
+    (e) => e.difficulty === config.level && letters(e.word).length === config.length,
   );
-  return pool.length ? pool[seed % pool.length].word : null;
-}
-function startRound(room) {
-  const round = rounds[room.round];
+  // Existing answer entries use difficulty; fail loudly if a pool ever becomes empty.
+  const selected = pool[process.env.NODE_ENV === 'test' ? 0 : randomInt(pool.length)];
+  room.answer = normalize(selected.word);
   room.phase = 'playing';
-  room.startedAt = Date.now();
-  room.deadline = room.startedAt + 90000;
+  room.deadline = Date.now() + duration;
   for (const p of room.players.values()) {
     p.solved = false;
-    p.finished = false;
+    p.finished = p.socket?.readyState !== 1;
+    p.guesses = [];
   }
-  // The server sends a deterministic seed; clients map it to the same curated answer list.
-  room.seed = randomInt(0, 2 ** 31 - 1);
-  room.answer = chooseAnswer(round.length, room.seed);
-  broadcast(room, {
-    type: 'round_started',
-    round: room.round,
-    level: round.level,
-    length: round.length,
-    attempts: round.attempts,
-    seed: room.seed,
-    deadline: room.deadline,
-  });
-  sendState(room);
-  room.timer = setTimeout(() => finishRound(room), 90000);
+  broadcast(room, { type: 'round_started', round: room.round, ...config, deadline: room.deadline });
+  publish(room);
+  room.timer = setTimeout(() => finish(room), duration);
 }
-function finishRound(room) {
+function finish(room) {
   if (room.phase !== 'playing') return;
   clearTimeout(room.timer);
-  room.phase = room.round + 1 >= rounds.length ? 'finished' : 'between';
-  const results = [...room.players.values()].map((p) => ({
-    id: p.id,
-    name: p.name,
-    score: p.score,
-    solved: p.solved,
-  }));
-  broadcast(room, { type: 'round_finished', round: room.round, players: results });
+  room.phase = room.round === 3 ? 'finished' : 'between';
+  broadcast(room, { type: 'round_finished', round: room.round, answer: room.answer });
+  publish(room);
   if (room.phase === 'finished') {
-    for (const player of room.players.values()) {
-      const account = accounts[player.id] ?? accounts[player.id.split('-')[0]];
-      if (account) {
-        account.history.push({
-          kind: 'battle',
+    const ranking = [...room.players.values()].sort((a, b) => b.score - a.score);
+    for (const p of ranking)
+      if (!p.guest)
+        store.record(p.accountId, {
           at: new Date().toISOString(),
           roomId: room.id,
-          score: player.score,
-          place: results.sort((a, b) => b.score - a.score).findIndex((p) => p.id === player.id) + 1,
+          score: p.score,
+          solved: p.solvedCount,
+          place: 1 + ranking.filter((x) => x.score > p.score).length,
+          players: ranking.length,
         });
-        account.history = account.history.slice(-100);
+  } else
+    room.timer = setTimeout(() => {
+      room.round++;
+      start(room);
+    }, pause);
+}
+function add(room, ws) {
+  const p = {
+    id: ws.id,
+    accountId: ws.user.id,
+    guest: ws.user.guest,
+    name: ws.user.name,
+    score: 0,
+    solvedCount: 0,
+    solved: false,
+    finished: false,
+    guesses: [],
+    socket: ws,
+  };
+  room.players.set(p.id, p);
+  ws.roomId = room.id;
+  send(ws, { type: 'joined', playerId: p.id });
+  publish(room);
+}
+function handle(ws, m) {
+  const fail = (code) => send(ws, { type: 'error', code });
+  if (m.type === 'guest') {
+    if (ws.user.guest)
+      ws.user.name =
+        String(m.name ?? 'Guest')
+          .trim()
+          .slice(0, 32) || 'Guest';
+    send(ws, { type: 'session', user: ws.user, playerId: ws.id });
+    return;
+  }
+  if (m.type === 'leave_room') {
+    remove(ws);
+    send(ws, { type: 'left' });
+    return;
+  }
+  if (m.type === 'create_room' || m.type === 'quick_match') {
+    remove(ws);
+    if (m.type === 'quick_match') {
+      const found = [...rooms.values()].find(
+        (r) => r.public && r.phase === 'lobby' && r.players.size < r.maxPlayers,
+      );
+      if (found) {
+        add(found, ws);
+        return;
       }
     }
-    saveAccounts();
-  }
-  sendState(room);
-  if (room.phase === 'between')
-    setTimeout(() => {
-      room.round += 1;
-      startRound(room);
-    }, 4000);
-}
-function handleSubmit(room, player, message) {
-  if (room.phase !== 'playing' || player.solved || Date.now() >= room.deadline) return;
-  const guess = String(message.guess ?? '')
-    .normalize('NFC')
-    .toLowerCase()
-    .replace(/եւ|եվ/g, 'և');
-  const correct = Boolean(room.answer && guess === room.answer);
-  if (!correct) {
-    player.score = Math.max(0, player.score - 25);
-    send(player.socket, { type: 'guess_result', correct: false, score: player.score });
-    return;
-  }
-  player.solved = true;
-  player.finished = true;
-  const speedBonus = Math.max(0, Math.round((room.deadline - Date.now()) / 1000));
-  player.score += 100 + speedBonus;
-  send(player.socket, { type: 'guess_result', correct: true, score: player.score, speedBonus });
-  sendState(room);
-  if ([...room.players.values()].every((p) => p.solved || p.finished)) finishRound(room);
-}
-function handle(ws, message) {
-  if (!message || typeof message.type !== 'string') return;
-  if (message.type === 'guest') {
-    ws.guestName = cleanName(message.name) || `Հյուր ${ws.id.slice(-4)}`;
-    send(ws, { type: 'session', user: userFrom(ws) });
-    return;
-  }
-  if (message.type === 'register' || message.type === 'login') {
-    const username = cleanName(message.username).toLowerCase();
-    const password = String(message.password ?? '');
-    if (!/^[a-z0-9_.-]{3,24}$/.test(username) || password.length < 8)
-      return send(ws, {
-        type: 'error',
-        code: 'credentials',
-        message: 'Օգտանունը կամ գաղտնաբառը անվավեր է։',
-      });
-    if (message.type === 'register' && accounts[username])
-      return send(ws, { type: 'error', code: 'exists', message: 'Այս օգտանունն արդեն զբաղված է։' });
-    if (
-      message.type === 'login' &&
-      (!accounts[username] || !verifyPassword(password, accounts[username].password))
-    )
-      return send(ws, { type: 'error', code: 'login', message: 'Մուտքի տվյալները սխալ են։' });
-    if (message.type === 'register')
-      accounts[username] = { password: hashPassword(password), name: username, history: [] };
-    ws.user = { id: username, name: accounts[username].name, guest: false };
-    saveAccounts();
-    send(ws, { type: 'session', user: ws.user });
-    return;
-  }
-  if (message.type === 'history') {
-    const account = ws.user && accounts[ws.user.id];
-    return send(ws, { type: 'history', history: account?.history ?? [] });
-  }
-  if (message.type === 'create_room') {
-    const maxPlayers = Math.min(8, Math.max(2, Number(message.maxPlayers) || 2));
-    const id = randomBytes(4).toString('hex').toUpperCase();
-    const user = userFrom(ws);
-    const room = { id, hostId: user.id, hostSocket: ws, maxPlayers, players: new Map(), phase: 'lobby', round: 0 };
-    rooms.set(id, room);
-    const player = {
-      id: user.id,
-      name: user.name,
-      score: 0,
-      solved: false,
-      finished: false,
-      socket: ws,
+    const maxPlayers = Math.min(8, Math.max(2, Math.floor(Number(m.maxPlayers) || 2)));
+    const room = {
+      id: randomBytes(4).toString('hex').toUpperCase(),
+      hostId: ws.id,
+      maxPlayers,
+      public: m.type === 'quick_match',
+      players: new Map(),
+      phase: 'lobby',
+      round: 0,
     };
-    room.players.set(player.id, player);
-    ws.roomId = id;
-    send(ws, { type: 'room_created', roomId: id });
-    sendState(room);
+    rooms.set(room.id, room);
+    add(room, ws);
+    send(ws, { type: 'room_created', roomId: room.id });
     return;
   }
-  if (message.type === 'join_room') {
-    const id = String(message.roomId ?? '').toUpperCase();
-    const room = rooms.get(id);
-    if (!room || !validRoomCode(id) || room.phase !== 'lobby')
-      return send(ws, { type: 'error', code: 'room', message: 'Սենյակը հասանելի չէ։' });
-    if (room.players.size >= room.maxPlayers)
-      return send(ws, { type: 'error', code: 'full', message: 'Սենյակը լիքն է։' });
-    const user = userFrom(ws);
-    const player = {
-      id: user.id + `-${ws.id}`,
-      name: user.name,
-      score: 0,
-      solved: false,
-      finished: false,
-      socket: ws,
-    };
-    room.players.set(player.id, player);
-    ws.roomId = id;
-    sendState(room);
+  if (m.type === 'join_room') {
+    const room = rooms.get(
+      String(m.roomId ?? '')
+        .trim()
+        .toUpperCase(),
+    );
+    if (!room || room.phase !== 'lobby') return fail('room');
+    if (room.players.size >= room.maxPlayers) return fail('full');
+    if ([...room.players.values()].some((p) => !p.guest && p.accountId === ws.user.id))
+      return fail('duplicate');
+    remove(ws);
+    add(room, ws);
     return;
   }
-  const room = rooms.get(ws.roomId);
-  if (!room) return send(ws, { type: 'error', code: 'room', message: 'Միացիր Battle սենյակին։' });
-  const player = room.players.get(
-    [...room.players.keys()].find(
-      (id) => id === (ws.user?.id ?? '') || id.startsWith(`${ws.user?.id ?? ''}-`),
-    ),
-  );
-  if (!player) return;
-  if (message.type === 'start_battle' && (player.id === room.hostId || ws === room.hostSocket) && room.players.size >= 2) {
-    startRound(room);
+  const room = rooms.get(ws.roomId),
+    player = room?.players.get(ws.id);
+  if (!player) return fail('room');
+  if (m.type === 'start_battle') {
+    if (room.hostId !== ws.id) return fail('host');
+    if (room.phase !== 'lobby') return fail('phase');
+    if (room.players.size < 2) return fail('players');
+    start(room);
     return;
   }
-  if (message.type === 'submit_guess') {
-    handleSubmit(room, player, message);
-    return;
+  if (m.type === 'submit_guess') {
+    if (room.phase !== 'playing' || player.finished || Date.now() >= room.deadline)
+      return fail('phase');
+    const guess = normalize(String(m.guess ?? ''));
+    if (!/^[ա-ֆև]+$/.test(guess)) return fail('armenianOnly');
+    if (letters(guess).length !== rounds[room.round].length) return fail('correctLength');
+    if (!dictionary.has(guess)) return fail('notInDictionary');
+    if (player.guesses.includes(guess)) return fail('repeated');
+    player.guesses.push(guess);
+    const marks = evaluate(guess, room.answer);
+    player.solved = guess === room.answer;
+    if (player.solved) {
+      player.solvedCount++;
+      player.score +=
+        1000 +
+        Math.max(0, Math.round((room.deadline - Date.now()) / 1000)) -
+        25 * (player.guesses.length - 1);
+    }
+    player.finished = player.solved || player.guesses.length >= rounds[room.round].attempts;
+    send(ws, {
+      type: 'guess_result',
+      guess,
+      marks,
+      correct: player.solved,
+      finished: player.finished,
+      score: player.score,
+    });
+    publish(room);
+    if ([...room.players.values()].every((p) => p.finished)) finish(room);
   }
 }
-const server = createServer((req, res) => {
-  res.writeHead(200, { 'content-type': 'application/json', 'access-control-allow-origin': '*' });
-  res.end(JSON.stringify({ service: 'barrik-battle', rooms: rooms.size, rounds: rounds.length }));
+const server = createServer(async (req, res) => {
+  try {
+    if (await store.handle(req, res)) return;
+    res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' });
+    res.end(
+      JSON.stringify({ service: 'barrik-battle', rooms: rooms.size, connections: sockets.size }),
+    );
+  } catch {
+    if (!res.headersSent) res.writeHead(500);
+    res.end(JSON.stringify({ code: 'server' }));
+  }
 });
-const wss = new WebSocketServer({ server });
-wss.on('connection', (ws) => {
-  ws.id = randomBytes(5).toString('hex');
-  sockets.set(ws.id, ws);
-  send(ws, { type: 'hello', protocol: 1 });
+const wss = new WebSocketServer({ server, maxPayload: 4096 });
+wss.on('connection', (ws, req) => {
+  if (req.headers.origin && new URL(req.headers.origin).host !== req.headers.host) {
+    ws.close(1008);
+    return;
+  }
+  ws.id = randomBytes(12).toString('hex');
+  ws.user = store.session(req) ?? { id: `guest-${ws.id}`, name: 'Guest', guest: true };
+  ws.alive = true;
+  ws.on('pong', () => {
+    ws.alive = true;
+  });
+  sockets.add(ws);
+  send(ws, { type: 'hello', protocol: 2 });
+  send(ws, { type: 'session', user: ws.user, playerId: ws.id });
   ws.on('message', (data) => {
     try {
+      if (!ws.user.guest && !store.session(req)) {
+        ws.close(1008, 'Session expired');
+        return;
+      }
       handle(ws, JSON.parse(data.toString()));
-    } catch {
-      send(ws, { type: 'error', code: 'bad_message', message: 'Անվավեր հաղորդագրություն։' });
+    } catch (error) {
+      console.error('Battle message failed', error.message);
+      send(ws, { type: 'error', code: 'server' });
     }
   });
   ws.on('close', () => {
-    sockets.delete(ws.id);
-    const room = rooms.get(ws.roomId);
-    if (!room) return;
-    const player = [...room.players.values()].find((p) => p.socket === ws);
-    if (player) player.socket = { readyState: 0 };
-    sendState(room);
-    if (![...room.players.values()].some((p) => p.socket.readyState === 1)) {
-      clearTimeout(room.timer);
-      rooms.delete(room.id);
-    }
+    sockets.delete(ws);
+    remove(ws);
   });
+  ws.on('error', () => ws.close());
 });
-server.listen(PORT, () => console.log(`Barrik Battle server listening on :${PORT}`));
+server.listen(Number(process.env.PORT ?? 8787), process.env.HOST ?? '127.0.0.1', () =>
+  console.log(`Battle listening ${server.address().port}`),
+);
+
+const heartbeat = setInterval(() => {
+  for (const ws of sockets) {
+    if (!ws.alive) {
+      ws.terminate();
+      continue;
+    }
+    ws.alive = false;
+    ws.ping();
+  }
+}, 30000);
+heartbeat.unref();
+wss.on('close', () => clearInterval(heartbeat));

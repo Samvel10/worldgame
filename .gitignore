@@ -3,3 +3,9 @@ dist/
 test-results/
 playwright-report/
 *.tsbuildinfo
+server/data/
+test-results-audit/
+.env
+.env.*
+graphify-out/cache/
+graphify-out/.*

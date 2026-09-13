@@ -22,26 +22,27 @@ import { SettingsPanel } from './components/SettingsPanel';
 import { Statistics } from './components/Statistics';
 import { Help } from './components/Help';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
-import { BattlePanel } from './components/BattlePanel';
+
 import { answers } from './data/dictionary';
 import { useGame } from './hooks/useGame';
 import { letters } from './game/engine';
-import { isTheme, safeRead, safeWrite, storageKeys } from './game/storage';
+
 import { useI18n } from './i18n';
 import type { Theme } from './game/types';
-export default function App() {
+export default function App({
+  accountName,
+  theme,
+  setTheme,
+}: {
+  accountName?: string;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+}) {
   const game = useGame();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [dialog, setDialog] = useState<
     'help' | 'stats' | 'settings' | 'reset' | 'restart' | 'battle' | null
   >(null);
-  const [theme, setTheme] = useState<Theme>(() =>
-    safeRead(
-      storageKeys.theme,
-      matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
-      isTheme,
-    ),
-  );
   const input = useRef<HTMLInputElement>(null);
   const pendingCaret = useRef<number | null>(null);
   useLayoutEffect(() => {
@@ -50,10 +51,6 @@ export default function App() {
       pendingCaret.current = null;
     }
   }, [game.draft]);
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    safeWrite(storageKeys.theme, theme);
-  }, [theme]);
   useEffect(() => {
     function handle(event: KeyboardEvent) {
       const target = event.target as HTMLElement;
@@ -93,12 +90,13 @@ export default function App() {
       </a>
       <div className="app-shell">
         <header className="header">
-          <a className="brand" href="./" aria-label={`${t('title')}՝ գլխավոր էջ`}>
+          <a className="brand" href="./" aria-label={t('account.home')}>
             <span className="brand-mark">
               բ<span />
             </span>
             <span>
-              բառիկ<small>{t('ui.tagline')}</small>
+              {t('title')}
+              <small>{t('ui.tagline')}</small>
             </span>
           </a>
           <nav aria-label={t('language')}>
@@ -106,10 +104,13 @@ export default function App() {
               <CircleHelp size={19} />
               <span>{t('ui.howToPlay')}</span>
             </button>
-            <button className="header-help battle-link" onClick={() => setDialog('battle')}>
+            <a className="header-help battle-link" href="#battle">
               <Swords size={18} />
               <span>{t('battle.title')}</span>
-            </button>
+            </a>
+            <a className="account-nav" href={accountName ? '#account' : '#login'}>
+              {accountName ?? t('battle.login')}
+            </a>
             <span className="nav-divider" />
             <button
               className="icon-button"
@@ -213,7 +214,7 @@ export default function App() {
                         ? `${t('gameStatus.lost')} ${game.round.answer.word}`
                         : game.round.hintUsed
                           ? t('ui.hintTheme', {
-                              theme: game.round.answer.theme,
+                              theme: t(`themes.${game.round.answer.theme}`),
                               letter: letters(game.round.answer.word)[0],
                             })
                           : t('ui.newRound'))}
@@ -277,7 +278,7 @@ export default function App() {
               </div>
             </section>
           </div>
-          <section className="legend" aria-label="{t('ui.legendLabel')}">
+          <section className="legend" aria-label={t('ui.legendLabel')}>
             <div>
               <span className="legend-box correct">✓</span>
               <span>{t('ui.legendCorrect')}</span>
@@ -294,19 +295,13 @@ export default function App() {
         </main>
         <footer>
           <span>
-            <BookOpen size={16} /> Հայերենը՝ խաղով ու սիրով։
+            <BookOpen size={16} /> {t('ui.footerMotto')}
           </span>
-          <span>
-            {answers.length} ընտրված բառ <span className="footer-dot">·</span> Անսահման
-            բացահայտումներ
-          </span>
+          <span>{t('ui.footer', { count: answers.length })}</span>
         </footer>
       </div>
       <Modal title={t('ui.howToPlay')} open={dialog === 'help'} onClose={close}>
         <Help />
-      </Modal>
-      <Modal title={t('battle.title')} open={dialog === 'battle'} onClose={close}>
-        <BattlePanel onClose={close} />
       </Modal>
       <Modal title={t('statistics.played')} open={dialog === 'stats'} onClose={close}>
         <Statistics stats={game.stats} onReset={() => setDialog('reset')} />
@@ -328,13 +323,8 @@ export default function App() {
             </button>
           </div>
         </div>
-        <p className="settings-info">
-          Խաղի բարդությունը, բառի երկարությունն ու փորձերի քանակը ընտրիր «Քո խաղը» հատվածում։
-          Կարգավորումները պահպանվում են այս սարքում։
-        </p>
-        <p className="muted">
-          Շարժումների նվազեցումը հետևում է քո սարքի մատչելիության կարգավորմանը։
-        </p>
+        <p className="settings-info">{t('ui.settingsInfo')}</p>
+        <p className="muted">{t('ui.motionInfo')}</p>
         <button className="primary" onClick={close}>
           {t('ui.saveClose')}
         </button>
@@ -344,13 +334,10 @@ export default function App() {
         open={dialog === 'reset'}
         onClose={() => setDialog('stats')}
       >
-        <p>
-          Խաղերի, հաղթանակների և շարքերի տվյալները կջնջվեն այս սարքից։ Այս գործողությունը հնարավոր
-          չէ հետարկել։
-        </p>
+        <p>{t('ui.resetInfo')}</p>
         <div className="modal-actions">
           <button className="secondary" onClick={() => setDialog('stats')}>
-            Չեղարկել
+            {t('cancel')}
           </button>
           <button
             className="danger-button"
@@ -359,7 +346,7 @@ export default function App() {
               setDialog('stats');
             }}
           >
-            Այո, զրոյացնել
+            {t('ui.resetConfirm')}
           </button>
         </div>
       </Modal>
@@ -371,7 +358,7 @@ export default function App() {
         <p>{t('ui.inProgress')}</p>
         <div className="modal-actions">
           <button className="secondary" onClick={close}>
-            Շարունակել խաղը
+            {t('ui.continueGame')}
           </button>
           <button
             className="primary"
@@ -382,12 +369,12 @@ export default function App() {
               }
             }}
           >
-            Սկսել նոր խաղ
+            {t('ui.startNewGame')}
           </button>
         </div>
       </Modal>
       <Modal
-        title={game.status === 'won' ? 'Գերազանց, գտար բառը։' : 'Այս անգամ բառը թաքնվեց։'}
+        title={game.status === 'won' ? t('ui.winTitle') : t('ui.lossTitle')}
         open={game.resultOpen}
         delay={1150}
         onClose={() => game.setResultOpen(false)}
@@ -396,9 +383,13 @@ export default function App() {
           <div className="result-icon">
             {game.status === 'won' ? <Trophy size={38} /> : <BookOpen size={38} />}
           </div>
-          <p className="muted">Գաղտնի բառը</p>
+          <p className="muted">{t('ui.answerLabel')}</p>
           <strong className="answer-word">{game.round.answer.word}</strong>
-          <p>{game.round.answer.definition ?? `Թեման՝ ${game.round.answer.theme}։`}</p>
+          <p>
+            {language === 'hy' && game.round.answer.definition
+              ? game.round.answer.definition
+              : t('ui.themeValue', { theme: t(`themes.${game.round.answer.theme}`) })}
+          </p>
           <div className="result-details">
             <span>{t(`modes.${game.round.mode}`)}</span>
             <span>{t('ui.letterWord', { count: game.length })}</span>
@@ -406,8 +397,8 @@ export default function App() {
           </div>
           <p>
             {game.status === 'won'
-              ? `Բառը գուշակեցիր ${game.round.guesses.length} փորձով։`
-              : 'Ամեն փորձը քեզ ավելի հմուտ է դարձնում։'}
+              ? t('ui.resultFound', { count: game.round.guesses.length })
+              : t('ui.resultMissed')}
           </p>
           <button className="primary" onClick={() => game.start()}>
             {t('playAgain')} <ArrowRight size={18} />

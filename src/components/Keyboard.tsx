@@ -1,6 +1,6 @@
 import { CornerDownLeft, Delete } from 'lucide-react';
 import type { KeyboardState } from '../game/types';
-import { markNames, markSymbols } from '../game/presentation';
+import { markSymbols } from '../game/presentation';
 import { useI18n } from '../i18n';
 const rows = [
   ['է', 'թ', 'փ', 'ձ', 'ջ', 'ր', 'չ', 'ճ', 'ժ', 'ծ'],
@@ -27,7 +27,7 @@ export function Keyboard({
               key={letter}
               type="button"
               className={`key ${state[letter] ?? ''}`}
-              aria-label={`${letter}${state[letter] ? `՝ ${markNames[state[letter]]}` : ''}`}
+              aria-label={`${letter}${state[letter] ? `՝ ${t(`helpContent.${state[letter]}`)}` : ''}`}
               disabled={disabled}
               onClick={() => onKey(letter)}
             >

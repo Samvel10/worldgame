@@ -3,19 +3,29 @@ import '@fontsource/noto-sans-armenian/400.css';
 import '@fontsource/noto-sans-armenian/500.css';
 import '@fontsource/noto-sans-armenian/600.css';
 import '@fontsource/noto-sans-armenian/700.css';
-import App from './App';
+import Site from './Site';
 import { I18nProvider } from './i18n';
 import { initializeDictionary } from './data/dictionary';
 import dictionaryUrl from './data/accepted.json?url';
 import './styles.css';
+import { getNestedValue } from './i18n/utils';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 async function boot() {
+  let language: 'hy' | 'en' | 'ru' = 'hy';
+  try {
+    const saved = localStorage.getItem('language');
+    if (saved === 'en' || saved === 'ru') language = saved;
+  } catch {
+    /* optional persistence */
+  }
+  const text = (key: string) => getNestedValue(language, key) ?? key;
+  document.documentElement.lang = language;
   root.render(
     <main className="loading-screen" role="status">
       <span className="brand-mark">բ</span>
-      <h1>Բառիկ</h1>
-      <p>Բառարանը պատրաստվում է…</p>
+      <h1>{text('title')}</h1>
+      <p>{text('errors.loadingDictionary')}</p>
     </main>,
   );
   try {
@@ -24,17 +34,17 @@ async function boot() {
     initializeDictionary(await response.json());
     root.render(
       <I18nProvider defaultLanguage="hy">
-        <App />
+        <Site />
       </I18nProvider>,
     );
   } catch {
     root.render(
       <main className="loading-screen">
         <span className="brand-mark">բ</span>
-        <h1>Բառարանը չհաջողվեց բեռնել</h1>
-        <p role="alert">Ստուգիր կապը և կրկին փորձիր։</p>
+        <h1>{text('errors.dictionaryError')}</h1>
+        <p role="alert">{text('account.errors.network')}</p>
         <button className="primary" onClick={() => void boot()}>
-          Կրկին փորձել
+          {text('errors.retry')}
         </button>
       </main>,
     );

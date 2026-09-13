@@ -8,7 +8,10 @@ export function Statistics({ stats, onReset }: { stats: Stats; onReset: () => vo
       <div className="stat-grid">
         {[
           [stats.played, t('statistics.played')],
-          [`${stats.played ? Math.round((stats.wins / stats.played) * 100) : 0}%`, t('statistics.wins')],
+          [
+            `${stats.played ? Math.round((stats.wins / stats.played) * 100) : 0}%`,
+            t('statistics.wins'),
+          ],
           [stats.streak, t('statistics.streak')],
           [stats.bestStreak, t('statistics.bestStreak')],
         ].map(([n, label]) => (

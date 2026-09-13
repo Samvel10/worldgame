@@ -1,3 +1,4 @@
+import { useI18n } from '../i18n';
 import { useState } from 'react';
 import { answers } from '../data/dictionary';
 import {
@@ -40,6 +41,7 @@ function makeRound(settings: Settings): Round | null {
   };
 }
 export function useGame() {
+  const { t } = useI18n();
   const [settings, setSettingsState] = useState(() =>
     safeRead(storageKeys.settings, defaultSettings, isSettings),
   );
@@ -142,7 +144,15 @@ export function useGame() {
     stats,
     draft,
     replaceDraft,
-    message,
+    message: !message
+      ? ''
+      : message === 'Մուտքագրիր միայն հայերեն տառեր'
+        ? t('validation.armenianOnly')
+        : message === 'Այս բառը բառարանում չկա'
+          ? t('validation.notInDictionary')
+          : message.includes('տառ')
+            ? t('validation.correctLength', { length })
+            : t('ui.none'),
     errorId,
     status,
     length,
