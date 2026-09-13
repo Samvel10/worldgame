@@ -63,3 +63,10 @@ Created `src/components/BattlePanel.tsx` with live WebSocket connection, guest n
 ## Step 16 — Documentation and final smoke checks (2026-09-13)
 - Documented Battle server startup, WebSocket configuration, account persistence, deployment expectations, and PWA installation in README.
 - Verified `npm run typecheck` and `npm run test:battle` after documentation and responsive CSS changes.
+
+## Step 17 — Production deployment (2026-09-13)
+- Pushed repository to GitHub `Samvel10/worldgame` on branch `main`.
+- Deployed to `/opt/worldgame` on `5.223.92.226`, built with Node 22, and configured `worldgame-battle.service` under systemd.
+- Existing Apache service occupied ports 80/443 and existing local services occupied 8787/8788; integrated with Apache reverse proxy on internal port 8799 instead of disrupting other hosted projects.
+- Configured `armworldgame.duckdns.org` Apache vhost, WSS proxy at `/ws`, TLS certificate via Certbot, HTTP→HTTPS redirect, and static PWA files.
+- Verified HTTPS returns 200, manifest is served, and WSS handshake returns the Battle protocol hello message.
