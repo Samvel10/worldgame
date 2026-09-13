@@ -145,6 +145,7 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
     else if (value === 'Backspace') change(deleteBackward(draft, draft.length, draft.length).value);
     else change(draft + value);
   }
+  const wordInput = useRef<HTMLInputElement>(null);
   const physicalKey = useEffectEvent((event: KeyboardEvent) => {
     const target = event.target as HTMLElement;
     if (
@@ -159,6 +160,7 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
     if (target.closest('button,a') && (event.key === 'Enter' || event.key === ' ')) return;
     if (event.key === 'Enter' || event.key === 'Backspace' || /^[Ա-Ֆա-ֆև]$/.test(event.key)) {
       event.preventDefault();
+      if (event.key !== 'Enter') wordInput.current?.focus();
       key(event.key);
     }
   });
@@ -389,6 +391,7 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
                             key={round.round}
                             placeholder={t('ui.inputPlaceholder', { count: round.length })}
                             aria-label={t('ui.inputLabel')}
+                            ref={wordInput}
                             value={draft}
                             onChange={(e) => change(e.target.value)}
                             autoComplete="off"

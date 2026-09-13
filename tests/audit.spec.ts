@@ -41,8 +41,20 @@ test('accounts persist; two registered browsers play four rounds; history surviv
     const answer = answers.find((w) => w.difficulty === level && length(w.word) === count)!.word;
     for (const page of [pa, pb]) {
       await expect(page.locator('.board .tile-row').first().locator('.tile')).toHaveCount(count);
-      await page.getByRole('textbox', { name: 'Քո բառը' }).fill(answer);
-      await page.locator('.word-entry').getByRole('button').click();
+      // Start from a virtual letter, then switch to a physical Armenian keyboard.
+      await page.locator('.keyboard .key').first().focus();
+      const cdp = await page.context().newCDPSession(page);
+      for (const character of answer) {
+        await cdp.send('Input.dispatchKeyEvent', {
+          type: 'keyDown',
+          key: character,
+          text: character,
+        });
+        await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', key: character });
+      }
+      await expect(page.getByRole('textbox', { name: 'Քո բառը' })).toHaveValue(answer);
+      await page.keyboard.press('Enter');
+      await cdp.detach();
     }
   }
   await expect(pa.getByRole('heading', { name: 'Battle-ն ավարտվեց' })).toBeVisible();

@@ -224,3 +224,38 @@ test('Backspace respects selected text and the insertion caret', async ({ page }
   await field.press('Backspace');
   await expect(field).toHaveValue('անն');
 });
+
+for (const focus of ['input', 'body', 'letter', 'check'] as const) {
+  test(`physical Armenian input and Enter submit six tiles with ${focus} focus`, async ({
+    page,
+  }) => {
+    await setup(page, { length: 6, attempts: 6 });
+    const secret = await answer(page);
+    if (focus === 'input') await page.getByRole('textbox', { name: 'Քո բառը' }).focus();
+    else if (focus === 'body') await page.locator('h1').click();
+    else if (focus === 'letter') await page.locator('.keyboard .key').first().focus();
+    else await page.locator('.enter-key').focus();
+    const cdp = await page.context().newCDPSession(page);
+    for (const character of secret) {
+      await cdp.send('Input.dispatchKeyEvent', {
+        type: 'keyDown',
+        key: character,
+        text: character,
+      });
+      await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', key: character });
+    }
+    await expect(page.getByRole('textbox', { name: 'Քո բառը' })).toHaveValue(secret);
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('dialog', { name: 'Գերազանց, գտար բառը։' })).toBeVisible();
+  });
+}
+
+test('Tab-focused virtual keys still support native Enter activation', async ({ page }) => {
+  await setup(page, { length: 6 });
+  const letter = page.locator('.keyboard .key').first();
+  await letter.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('textbox', { name: 'Քո բառը' })).toHaveValue('է');
+  await page.keyboard.press('Space');
+  await expect(page.getByRole('textbox', { name: 'Քո բառը' })).toHaveValue('էէ');
+});

@@ -67,6 +67,8 @@ export default function App({
       if (target.closest('button') && (event.key === 'Enter' || event.key === ' ')) return;
       if (event.key === 'Enter' || event.key === 'Backspace' || /^[Ա-Ֆա-ֆև]$/.test(event.key)) {
         event.preventDefault();
+        // Physical typing leaves the virtual key so Enter submits the word.
+        if (event.key !== 'Enter') input.current?.focus();
         game.key(event.key);
       } else if (event.key.length === 1 && event.key !== '\t')
         game.replaceDraft(game.draft + event.key);

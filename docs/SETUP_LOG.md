@@ -122,3 +122,14 @@ Source tracing identified guest player lookup, socket-only accounts, hidden-moda
 - `AUDIT_PREVIEW=1 npm run test:audit`: all 6 tests passed in 24.6 seconds, including real four-round accounts flow, guest start, trilingual/accessibility checks, resource cleanup, offline/API cache isolation, and legacy cache upgrade.
 - `npm run lint`: exit 0 after formatting the live verifier. Earlier typecheck, production build, 56 unit tests, 11 solo browser tests, dictionary check (65002 accepted/433 answers), and Battle integration suite passed.
 - Publishing the live verification script, JSON evidence, screenshots and updated audit to the authorized GitHub main branch. Runtime release remains 3054c5d because these additions only document and verify it.
+
+## 2026-09-13T20:11:27.070895+00:00 — Physical Enter investigation
+- Read Armenian/systematic-debugging/TDD guidance; traced App input/form/global key handling, useGame submission and Battle keyboard handling.
+- `git status --short` revealed existing uncommitted edits to eight UI files, including account routing changes unrelated to this report. Preserved them. `git worktree add -b fix/physical-enter /tmp/worldgame-physical-enter HEAD` isolates the fix against the deployed source. Shared installed dependencies via symlink.
+- Added browser reproductions using actual Armenian key events for six-tile words with input, body, letter-button and check-button focus; running `npx playwright test -g "physical Armenian input"` before implementation.
+
+## 2026-09-13T20:13:24.465343+00:00 — Enter root cause and regression fix
+- Initial Playwright `keyboard.press` cannot dispatch Armenian keys; this was a test-harness failure, not product evidence. Replaced it with Chromium CDP keyDown/keyUp carrying Armenian key/text. Used isolated port 5193 because the normal development port may serve unrelated workspace edits. Shared dependency symlinks triggered Vite font allow-list warnings; final checks use the production build/preview with bundled fonts. Temporary port change was reverted.
+- Before fix: input/body/check focus passed; virtual-letter focus failed with the exact six-letter validation error and no submitted guess. Native Enter reactivated the focused virtual letter because global handling deliberately preserves button activation.
+- Fix: when a physical letter or Backspace is handled outside an input, focus the game input before applying that edit. Enter then follows the same form submission as the submit button. Applied to both solo and Battle; preserved Tab/Enter/Space activation of virtual keys before typing.
+- `npm run build` passed TypeScript and production bundling. `npm run lint` and 56 unit tests passed. `PLAYWRIGHT_PREVIEW=1 npm run test:e2e`: all 16 passed, including four physical-input focus scenarios, native button accessibility, mobile/desktop layout and axe checks. Battle audit now types each round through physical key events and Enter in both browsers.
