@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Copy, Crown, LogIn, Play, Radio, Shield, Users, Wifi, WifiOff, X } from 'lucide-react';
+import { Copy, Crown, LogIn, Play, Radio, Shield, UserPlus, Users, Wifi, WifiOff, X } from 'lucide-react';
 import { answerForSeed, battleLevels, isBattleGuessCorrect } from '../game/battle';
 import { useI18n } from '../i18n';
 
@@ -23,7 +23,10 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
   const [connected, setConnected] = useState(false);
   const [name, setName] = useState('');
   const [authUser, setAuthUser] = useState('');
+  const authUserRef = useRef('');
   const [authPass, setAuthPass] = useState('');
+  const [authView, setAuthView] = useState<'welcome' | 'login' | 'register'>('welcome');
+  const [authError, setAuthError] = useState('');
   const [roomId, setRoomId] = useState('');
   const [players, setPlayers] = useState<Player[]>([]);
   const [myId, setMyId] = useState('');
@@ -52,7 +55,15 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
     ws.onclose = () => setConnected(false);
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data) as Message;
-      if (msg.type === 'session') setMyId(String((msg.user as { id: string }).id));
+      if (msg.type === 'session') {
+        const user = msg.user as { id: string; name?: string; guest?: boolean };
+        setMyId(String(user.id));
+        if (!user.guest) {
+          setName(user.name ?? authUserRef.current);
+          setAuthView('welcome');
+          setAuthError('');
+        }
+      }
       if (msg.type === 'room_created') setRoomId(String(msg.roomId));
       if (msg.type === 'room_state') {
         setPhase(String(msg.phase));
@@ -75,7 +86,11 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
         setMessage(msg.correct ? t('battle.correct') : t('battle.wrong'));
       }
       if (msg.type === 'round_finished') setMessage(t('battle.roundFinished'));
-      if (msg.type === 'error') setMessage(String(msg.message));
+      if (msg.type === 'error') {
+        const error = String(msg.message);
+        setMessage(error);
+        setAuthError(error);
+      }
     };
     return () => ws.close();
   }, [t]);
@@ -97,6 +112,19 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
     send('submit_guess', { guess: draft, correct });
     if (!correct) setWrong((n) => n + 1);
     setDraft('');
+  }
+  function authenticate(type: 'login' | 'register') {
+    const username = authUser.trim().toLowerCase();
+    if (!/^[a-z0-9_.-]{3,24}$/.test(username)) {
+      setAuthError(t('battle.usernameError'));
+      return;
+    }
+    if (authPass.length < 8) {
+      setAuthError(t('battle.passwordError'));
+      return;
+    }
+    setAuthError('');
+    send(type, { username, password: authPass });
   }
   const me = players.find((player) => player.id === myId || player.id.startsWith(`${myId}-`));
   return (
@@ -122,53 +150,32 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
         </div>
       ) : phase === 'idle' ? (
         <div className="battle-lobby-form">
-          <label>
-            {t('battle.nickname')}
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t('battle.nicknamePlaceholder')}
-              maxLength={32}
-            />
-          </label>
-          <label>
-            {t('battle.players')}
-            <select value={maxPlayers} onChange={(e) => setMaxPlayers(Number(e.target.value))}>
-              {[2, 3, 4, 5, 6, 7, 8].map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="battle-auth">
-            <h3>{t('battle.account')}</h3>
-            <div className="auth-row">
-              <input
-                value={authUser}
-                onChange={(e) => setAuthUser(e.target.value)}
-                placeholder={t('battle.username')}
-              />
-              <input
-                type="password"
-                value={authPass}
-                onChange={(e) => setAuthPass(e.target.value)}
-                placeholder={t('battle.password')}
-              />
-              <button
-                className="text-button"
-                onClick={() => send('login', { username: authUser, password: authPass })}
-              >
-                {t('battle.login')}
-              </button>
-              <button
-                className="text-button"
-                onClick={() => send('register', { username: authUser, password: authPass })}
-              >
-                {t('battle.register')}
-              </button>
+          {authView === 'welcome' ? (
+            <div className="battle-auth-card">
+              <div className="auth-card-icon"><UserPlus size={22} /></div>
+              <h3>{t('battle.accountTitle')}</h3>
+              <p>{t('battle.accountText')}</p>
+              <div className="auth-card-actions">
+                <button className="primary" onClick={() => setAuthView('register')}><UserPlus size={16} />{t('battle.register')}</button>
+                <button className="secondary" onClick={() => setAuthView('login')}><LogIn size={16} />{t('battle.login')}</button>
+              </div>
+              <button className="guest-link" onClick={() => setAuthView('register')}>{t('battle.guestContinue')}</button>
             </div>
-            <small>{t('battle.accountHint')}</small>
+          ) : (
+            <div className="battle-auth-card auth-form-card">
+              <button className="auth-back" onClick={() => { setAuthView('welcome'); setAuthError(''); }}>← {t('battle.back')}</button>
+              <h3>{authView === 'register' ? t('battle.registerTitle') : t('battle.loginTitle')}</h3>
+              <p>{authView === 'register' ? t('battle.registerText') : t('battle.loginText')}</p>
+              <label>{t('battle.username')}<input autoFocus value={authUser} onChange={(e) => { setAuthUser(e.target.value); authUserRef.current = e.target.value; }} autoComplete="username" /></label>
+              <label>{t('battle.password')}<input type="password" value={authPass} onChange={(e) => setAuthPass(e.target.value)} autoComplete={authView === 'register' ? 'new-password' : 'current-password'} /></label>
+              {authError && <p className="auth-error" role="alert">{authError}</p>}
+              <button className="primary auth-submit" onClick={() => authenticate(authView)}>{authView === 'register' ? t('battle.register') : t('battle.login')}</button>
+              <small>{t('battle.accountHint')}</small>
+            </div>
+          )}
+          <div className="battle-lobby-options">
+            <label>{t('battle.nickname')}<input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('battle.nicknamePlaceholder')} maxLength={32} /></label>
+            <label>{t('battle.players')}<select value={maxPlayers} onChange={(e) => setMaxPlayers(Number(e.target.value))}>{[2, 3, 4, 5, 6, 7, 8].map((n) => <option key={n} value={n}>{n}</option>)}</select></label>
           </div>
           <div className="battle-actions">
             <button

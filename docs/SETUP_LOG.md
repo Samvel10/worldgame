@@ -70,3 +70,7 @@ Created `src/components/BattlePanel.tsx` with live WebSocket connection, guest n
 - Existing Apache service occupied ports 80/443 and existing local services occupied 8787/8788; integrated with Apache reverse proxy on internal port 8799 instead of disrupting other hosted projects.
 - Configured `armworldgame.duckdns.org` Apache vhost, WSS proxy at `/ws`, TLS certificate via Certbot, HTTP→HTTPS redirect, and static PWA files.
 - Verified HTTPS returns 200, manifest is served, and WSS handshake returns the Battle protocol hello message.
+
+## Step 18 — Registration flow redesign (2026-09-13)
+- Replaced the cramped inline Battle login/register controls with a focused account entry screen: account welcome state, dedicated login and registration forms, guest continuation, password/username validation, accessible error alerts, and clear back navigation.
+- Added complete Armenian/English/Russian translations for the new account flow.
