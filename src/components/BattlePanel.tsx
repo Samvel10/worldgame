@@ -25,7 +25,7 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
   const [authUser, setAuthUser] = useState('');
   const authUserRef = useRef('');
   const [authPass, setAuthPass] = useState('');
-  const [authView, setAuthView] = useState<'welcome' | 'login' | 'register'>('welcome');
+  const [authView, setAuthView] = useState<'welcome' | 'login' | 'register' | 'authenticated'>('welcome');
   const [authError, setAuthError] = useState('');
   const [roomId, setRoomId] = useState('');
   const [players, setPlayers] = useState<Player[]>([]);
@@ -60,7 +60,7 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
         setMyId(String(user.id));
         if (!user.guest) {
           setName(user.name ?? authUserRef.current);
-          setAuthView('welcome');
+          setAuthView('authenticated');
           setAuthError('');
         }
       }
@@ -159,7 +159,14 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
                 <button className="primary" onClick={() => setAuthView('register')}><UserPlus size={16} />{t('battle.register')}</button>
                 <button className="secondary" onClick={() => setAuthView('login')}><LogIn size={16} />{t('battle.login')}</button>
               </div>
-              <button className="guest-link" onClick={() => setAuthView('register')}>{t('battle.guestContinue')}</button>
+              <button className="guest-link" onClick={() => { send('guest', { name }); setAuthView('authenticated'); }}>{t('battle.guestContinue')}</button>
+            </div>
+          ) : authView === 'authenticated' ? (
+            <div className="battle-auth-card battle-auth-ready">
+              <div className="auth-card-icon"><Shield size={22} /></div>
+              <h3>{myId.startsWith('guest-') ? t('battle.guestReady') : t('battle.accountReady')}</h3>
+              <p>{name || t('battle.nicknamePlaceholder')}</p>
+              <button className="auth-back" onClick={() => setAuthView('welcome')}>{t('battle.switchAccount')}</button>
             </div>
           ) : (
             <div className="battle-auth-card auth-form-card">
@@ -181,7 +188,7 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
             <button
               className="primary"
               onClick={() => {
-                send('guest', { name });
+                if (!myId || myId.startsWith('guest-')) send('guest', { name });
                 send('create_room', { maxPlayers });
               }}
             >
@@ -198,7 +205,7 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
               <button
                 className="secondary"
                 onClick={() => {
-                  send('guest', { name });
+                  if (!myId || myId.startsWith('guest-')) send('guest', { name });
                   send('join_room', { roomId });
                 }}
               >
