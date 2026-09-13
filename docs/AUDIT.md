@@ -36,6 +36,15 @@ Previous completion claims are not accepted as test evidence.
 | Untracked round timers | One stored room timer; cleanup on empty room | Three-player room abandoned between rounds remains removed |
 | Missing account history | Record completed match by account ID | Browser profile and re-login history check |
 | Cache serving stale/private responses | Versioned bounded public cache; API excluded; one-time legacy migration | Production offline and API-cache checks; legacy migration test |
-| Broad deployment risks | Release directory, external persistent storage, scoped backup and rollback | Deployment script syntax checked; live activation pending |
+| Broad deployment risks | Release directory, external persistent storage, scoped backup and rollback | Activated release 3054c5d; HTTPS two-browser four-round test passed; external data store verified |
 
 No claim is made about unlimited capacity or complete reconnect recovery. Operating boundaries are documented in ARCHITECTURE.md.
+
+## Published verification
+
+- Production release `3054c5d` is active at https://armworldgame.duckdns.org.
+- `node scripts/verify-live.mjs` registered two independent browser accounts over HTTPS, verified Secure/HttpOnly cookies and refresh persistence, joined one room, started and completed all four real production rounds, and verified history after logout/login. No browser page errors occurred.
+- Screenshots: [desktop](screenshots/live-profile-desktop.png), [mobile](screenshots/live-profile-mobile.png). Machine-readable observations: [LIVE_VERIFICATION.json](LIVE_VERIFICATION.json).
+- Five sequential live profile reloads measured 1219, 1227, 1230, 1282, and 1341 ms. This small sample does not establish a general performance guarantee or prove the absence of every slowdown. After closing both browsers, server health reported zero rooms and zero connections, no service restarts, and approximately 74 MiB memory.
+- The previous `server/data` directory was empty at inspection. Historical accounts have not been recovered. New accounts and sessions are stored outside deployment releases in `/var/lib/worldgame`.
+- The live verification command intentionally creates two QA accounts and one completed match per account; it must only be run against an authorized environment. It does not output passwords or cookies.

@@ -1,0 +1,40 @@
+{
+  "at": "2026-09-13T19:42:51.931Z",
+  "base": "https://armworldgame.duckdns.org",
+  "rounds": [
+    {
+      "round": 1,
+      "level": "easy",
+      "attempts": 2
+    },
+    {
+      "round": 2,
+      "level": "medium",
+      "attempts": 2
+    },
+    {
+      "round": 3,
+      "level": "hard",
+      "attempts": 1
+    },
+    {
+      "round": 4,
+      "level": "expert",
+      "attempts": 2
+    }
+  ],
+  "registeredBrowsers": 2,
+  "cookie": {
+    "httpOnly": true,
+    "secure": true
+  },
+  "historyAfterLogin": true,
+  "reloadsMs": [
+    1219,
+    1227,
+    1230,
+    1282,
+    1341
+  ],
+  "pageErrors": []
+}

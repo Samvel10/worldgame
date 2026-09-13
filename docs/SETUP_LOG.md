@@ -111,3 +111,14 @@ Source tracing identified guest player lookup, socket-only accounts, hidden-moda
 - Replaced stale deployment instructions and README with current account/Battle rules, screenshots, test commands and explicit operating limits.
 - Added tests for three-player public matchmaking, attempt exhaustion, restart-compatible sessions, wrong/correct UI login, and legacy service-worker migration.
 - Checked account and Battle desktop/mobile screenshots directly. Fixed shared theme state, translated board labels, and preserved physical keyboard support beyond input focus.
+
+## 2026-09-13T19:45:17.518321+00:00 — Scoped production activation and live verification
+- Packaged built dist/server/dictionary and production manifests, excluding server/data; uploaded to `/opt/worldgame/releases/3054c5d-20260913`. Ran `scripts/deploy/activate.sh` remotely. This preserves prior releases and external accounts rather than deleting the deployment directory. Apache configuration validated and only this domain was reloaded.
+- Used `ssh -i ~/.ssh/hetzner_key root@5.223.92.226` to inspect `systemctl show worldgame-battle -p User -p ActiveState -p NRestarts -p MemoryCurrent`, `readlink /opt/worldgame/current`, `stat` on `/var/lib/worldgame`, and loopback health. Results: worldgame user, active, zero restarts, 77897728 bytes memory, correct release, protected persistent directory, zero rooms/connections after browser closure. HTTPS `/version.json` confirms 3054c5d.
+- Ran `node scripts/verify-live.mjs`: two real HTTPS browser accounts completed registration, refresh, four shared rounds, history, logout and login. Passed, zero page errors; timing observations recorded without an unsupported performance guarantee.
+- Inspected desktop 1440px and mobile 390px live profile screenshots directly. No clipping or overflow observed. Formatted the reusable live verifier with `npx prettier --write scripts/verify-live.mjs`; ran lint and the complete production-preview audit suite for final regression verification. Results are recorded in the following entry.
+
+## 2026-09-13T19:45:40.923878+00:00 — Final regression results and evidence publication
+- `AUDIT_PREVIEW=1 npm run test:audit`: all 6 tests passed in 24.6 seconds, including real four-round accounts flow, guest start, trilingual/accessibility checks, resource cleanup, offline/API cache isolation, and legacy cache upgrade.
+- `npm run lint`: exit 0 after formatting the live verifier. Earlier typecheck, production build, 56 unit tests, 11 solo browser tests, dictionary check (65002 accepted/433 answers), and Battle integration suite passed.
+- Publishing the live verification script, JSON evidence, screenshots and updated audit to the authorized GitHub main branch. Runtime release remains 3054c5d because these additions only document and verify it.
