@@ -74,3 +74,7 @@ Created `src/components/BattlePanel.tsx` with live WebSocket connection, guest n
 ## Step 18 — Registration flow redesign (2026-09-13)
 - Replaced the cramped inline Battle login/register controls with a focused account entry screen: account welcome state, dedicated login and registration forms, guest continuation, password/username validation, accessible error alerts, and clear back navigation.
 - Added complete Armenian/English/Russian translations for the new account flow.
+
+## Step 19 — Account onboarding polish verification (2026-09-13)
+- Added responsive styles for account cards, forms, focus states, validation alerts, guest continuation, and lobby options.
+- Verified typecheck, lint, 55 unit tests, production build, GitHub push, server sync, and active systemd restart.
