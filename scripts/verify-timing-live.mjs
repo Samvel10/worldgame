@@ -128,14 +128,13 @@ try {
     await b.page.getByRole('textbox', { name: 'Քո բառը', exact: true }).fill(answer);
     await b.page.locator('.word-entry button').click();
     await event(b.messages, (m) => m.type === 'round_finished' && m.round === round);
-    const state = [...b.messages]
-      .reverse()
-      .find(
-        (m) =>
-          m.type === 'room_state' &&
-          m.round === round &&
-          (m.phase === 'between' || m.phase === 'finished'),
-      );
+    const state = await event(
+      b.messages,
+      (m) =>
+        m.type === 'room_state' &&
+        m.round === round &&
+        (m.phase === 'between' || m.phase === 'finished'),
+    );
     expect(state).toBeTruthy();
     expect(state.players.every((p) => p.totalTimeMs >= 0)).toBe(true);
     results.push({
