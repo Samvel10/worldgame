@@ -3,6 +3,7 @@ import { WebSocketServer } from 'ws';
 import { randomBytes, randomInt } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { roundDuration, elapsedRound, comparePlayers } from '../shared/battle-rules.mjs';
 import { accountStore } from './accounts.mjs';
 const store = accountStore(process.env.BARRIK_DATA_DIR ?? path.resolve('server/data'));
 const normalize = (s) => s.normalize('NFC').toLowerCase().replace(/եւ|եվ/g, 'և');
@@ -17,7 +18,8 @@ const rounds = [
   { level: 'hard', length: 10, attempts: 5 },
   { level: 'expert', length: 14, attempts: 6 },
 ];
-const duration = process.env.NODE_ENV === 'test' ? Number(process.env.ROUND_MS ?? 10000) : 90000;
+const defaultDuration =
+  process.env.NODE_ENV === 'test' ? Number(process.env.ROUND_MS ?? 10000) : 90000;
 const pause = process.env.NODE_ENV === 'test' ? 100 : 4000;
 const rooms = new Map(),
   sockets = new Set();
@@ -36,14 +38,17 @@ function snapshot(room) {
     round: room.round,
     totalRounds: 4,
     maxPlayers: room.maxPlayers,
+    roundSeconds: room.duration / 1000,
+    serverNow: Date.now(),
     players: [...room.players.values()].map(
-      ({ id, name, score, solved, finished, socket, solvedCount }) => ({
+      ({ id, name, score, solved, finished, socket, solvedCount, totalTimeMs }) => ({
         id,
         name,
         score,
         solved,
         finished,
         solvedCount,
+        totalTimeMs,
         connected: socket?.readyState === 1,
       }),
     ),
@@ -62,6 +67,7 @@ function remove(ws) {
     room.players.delete(p.id);
     if (room.hostId === p.id) room.hostId = room.players.keys().next().value;
   } else {
+    if (room.phase === 'playing') settleTime(room, p);
     p.socket = null;
     p.finished = true;
   }
@@ -90,6 +96,11 @@ function evaluate(guess, answer) {
   });
   return marks;
 }
+function settleTime(room, player) {
+  if (player.roundTimeMs !== null) return;
+  player.roundTimeMs = elapsedRound(room.startedAt, room.deadline, Date.now());
+  player.totalTimeMs += player.roundTimeMs;
+}
 function start(room) {
   if (!rooms.has(room.id)) return;
   clearTimeout(room.timer);
@@ -101,32 +112,46 @@ function start(room) {
   const selected = pool[process.env.NODE_ENV === 'test' ? 0 : randomInt(pool.length)];
   room.answer = normalize(selected.word);
   room.phase = 'playing';
-  room.deadline = Date.now() + duration;
+  room.startedAt = Date.now();
+  room.deadline = room.duration === 0 ? null : room.startedAt + room.duration;
   for (const p of room.players.values()) {
     p.solved = false;
     p.finished = p.socket?.readyState !== 1;
     p.guesses = [];
+    p.roundTimeMs = p.finished ? 0 : null;
   }
-  broadcast(room, { type: 'round_started', round: room.round, ...config, deadline: room.deadline });
+  broadcast(room, {
+    type: 'round_started',
+    round: room.round,
+    ...config,
+    deadline: room.deadline,
+    startedAt: room.startedAt,
+  });
   publish(room);
-  room.timer = setTimeout(() => finish(room), duration);
+  room.timer = room.duration === 0 ? null : setTimeout(() => finish(room), room.duration);
 }
 function finish(room) {
   if (room.phase !== 'playing') return;
   clearTimeout(room.timer);
+  for (const p of room.players.values()) {
+    settleTime(room, p);
+    p.finished = true;
+  }
   room.phase = room.round === 3 ? 'finished' : 'between';
   broadcast(room, { type: 'round_finished', round: room.round, answer: room.answer });
   publish(room);
   if (room.phase === 'finished') {
-    const ranking = [...room.players.values()].sort((a, b) => b.score - a.score);
+    const ranking = [...room.players.values()].sort(comparePlayers);
     for (const p of ranking)
       if (!p.guest)
         store.record(p.accountId, {
           at: new Date().toISOString(),
           roomId: room.id,
           score: p.score,
+          totalTimeMs: p.totalTimeMs,
+          roundSeconds: room.duration / 1000,
           solved: p.solvedCount,
-          place: 1 + ranking.filter((x) => x.score > p.score).length,
+          place: 1 + ranking.filter((x) => comparePlayers(x, p) < 0).length,
           players: ranking.length,
         });
   } else
@@ -142,6 +167,8 @@ function add(room, ws) {
     guest: ws.user.guest,
     name: ws.user.name,
     score: 0,
+    totalTimeMs: 0,
+    roundTimeMs: null,
     solvedCount: 0,
     solved: false,
     finished: false,
@@ -170,10 +197,20 @@ function handle(ws, m) {
     return;
   }
   if (m.type === 'create_room' || m.type === 'quick_match') {
+    let duration;
+    try {
+      duration = m.roundSeconds === undefined ? defaultDuration : roundDuration(m.roundSeconds);
+    } catch {
+      return fail('duration');
+    }
     remove(ws);
     if (m.type === 'quick_match') {
       const found = [...rooms.values()].find(
-        (r) => r.public && r.phase === 'lobby' && r.players.size < r.maxPlayers,
+        (r) =>
+          r.public &&
+          r.duration === duration &&
+          r.phase === 'lobby' &&
+          r.players.size < r.maxPlayers,
       );
       if (found) {
         add(found, ws);
@@ -185,6 +222,7 @@ function handle(ws, m) {
       id: randomBytes(4).toString('hex').toUpperCase(),
       hostId: ws.id,
       maxPlayers,
+      duration,
       public: m.type === 'quick_match',
       players: new Map(),
       phase: 'lobby',
@@ -220,7 +258,11 @@ function handle(ws, m) {
     return;
   }
   if (m.type === 'submit_guess') {
-    if (room.phase !== 'playing' || player.finished || Date.now() >= room.deadline)
+    if (
+      room.phase !== 'playing' ||
+      player.finished ||
+      (room.deadline !== null && Date.now() >= room.deadline)
+    )
       return fail('phase');
     const guess = normalize(String(m.guess ?? ''));
     if (!/^[ա-ֆև]+$/.test(guess)) return fail('armenianOnly');
@@ -232,12 +274,10 @@ function handle(ws, m) {
     player.solved = guess === room.answer;
     if (player.solved) {
       player.solvedCount++;
-      player.score +=
-        1000 +
-        Math.max(0, Math.round((room.deadline - Date.now()) / 1000)) -
-        25 * (player.guesses.length - 1);
+      player.score += 1000 - 25 * (player.guesses.length - 1);
     }
     player.finished = player.solved || player.guesses.length >= rounds[room.round].attempts;
+    if (player.finished) settleTime(room, player);
     send(ws, {
       type: 'guess_result',
       guess,

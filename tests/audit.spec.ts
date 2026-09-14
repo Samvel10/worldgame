@@ -30,6 +30,7 @@ test('accounts persist; two registered browsers play four rounds; history surviv
     await page.goto('/#battle');
     await expect(page.getByText('Առցանց', { exact: true })).toBeVisible();
   }
+  await pa.getByLabel('Փուլի ժամանակը՝ վայրկյաններով', { exact: true }).fill('0');
   await pa.getByRole('button', { name: 'Ստեղծել սենյակ', exact: true }).click();
   const code = await pa.locator('.invitation-code').innerText();
   await pb.getByLabel('Սենյակի կոդ', { exact: true }).fill(code);
@@ -37,6 +38,8 @@ test('accounts persist; two registered browsers play four rounds; history surviv
   await expect(pa.getByRole('button', { name: 'Սկսել Battle-ը', exact: true })).toBeEnabled();
   await pa.getByRole('button', { name: 'Սկսել Battle-ը', exact: true }).click();
   for (const [i, level] of ['easy', 'medium', 'hard', 'expert'].entries()) {
+    await expect(pa.locator('.battle-round-meta')).toContainText('Անսահմանափակ');
+    await expect(pb.locator('.battle-time-summary')).toContainText('Անսահմանափակ');
     const count = [5, 7, 10, 14][i];
     const answer = answers.find((w) => w.difficulty === level && length(w.word) === count)!.word;
     for (const page of [pa, pb]) {
@@ -61,6 +64,7 @@ test('accounts persist; two registered browsers play four rounds; history surviv
   await expect(pb.getByRole('heading', { name: 'Battle-ն ավարտվեց' })).toBeVisible();
   await pa.goto('/#account');
   await expect(pa.locator('.history-list li')).toHaveCount(1);
+  await expect(pa.locator('.history-list li')).toContainText('Ընդհանուր խաղաժամանակ');
   await pa.getByRole('button', { name: 'Դուրս գալ' }).click();
   await pa.reload();
   await expect(pa.getByRole('button', { name: 'Մուտք գործել', exact: true })).toBeVisible();
@@ -219,4 +223,55 @@ test('legacy cached shell upgrades once and removes old caches', async ({ page }
   await expect(page.getByRole('button', { name: 'Մուտք գործել', exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByRole('button', { name: 'Մուտք գործել', exact: true })).toBeVisible();
+});
+
+test('host time setting, compact status, live totals and responsive timing cards', async ({
+  browser,
+}) => {
+  const a = await browser.newContext(),
+    b = await browser.newContext();
+  const pa = await a.newPage(),
+    pb = await b.newPage();
+  try {
+    await pa.goto('/#battle');
+    await expect(pa.getByText('Առցանց', { exact: true })).toBeVisible();
+    const badge = await pa.locator('.connection').boundingBox();
+    expect(badge!.height).toBeLessThan(40);
+    const duration = pa.getByLabel('Փուլի ժամանակը՝ վայրկյաններով', { exact: true });
+    await duration.fill('-1');
+    await expect(pa.getByRole('button', { name: 'Ստեղծել սենյակ', exact: true })).toBeDisabled();
+    await duration.fill('17');
+    await pa.setViewportSize({ width: 1440, height: 1000 });
+    await pa.screenshot({ path: 'docs/screenshots/battle-timing-lobby.png', fullPage: true });
+    await pa.getByRole('button', { name: 'Ստեղծել սենյակ', exact: true }).click();
+    const code = await pa.locator('.invitation-code').innerText();
+    await pb.goto('/#battle');
+    await pb.getByLabel('Սենյակի կոդ', { exact: true }).fill(code);
+    await pb.getByRole('button', { name: 'Միանալ', exact: true }).click();
+    await expect(pb.locator('.battle-time-summary')).toContainText('17 վրկ');
+    await expect(pb.getByRole('button', { name: 'Սկսել Battle-ը', exact: true })).toHaveCount(0);
+    await pa.getByRole('button', { name: 'Սկսել Battle-ը', exact: true }).click();
+    await expect(pa.locator('.player-time').first().locator('strong')).not.toHaveText('0:00.0');
+    const word = answers.find((w) => w.difficulty === 'easy' && length(w.word) === 5)!.word;
+    await pa.getByRole('textbox', { name: 'Քո բառը' }).fill(word);
+    await pa.locator('.word-entry button').click();
+    await expect(pa.locator('.player-time.me small')).toContainText('1 / 4');
+    const fixed = await pa.locator('.player-time.me strong').innerText();
+    await expect
+      .poll(async () => await pb.locator('.player-time.me strong').innerText())
+      .not.toBe(fixed);
+    await expect(pa.locator('.player-time.me strong')).toHaveText(fixed);
+    await pa.screenshot({ path: 'docs/screenshots/battle-timing-desktop.png', fullPage: true });
+    for (const width of [320, 390]) {
+      await pa.setViewportSize({ width, height: 900 });
+      expect(await pa.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+        true,
+      );
+      expect((await pa.locator('.connection').boundingBox())!.height).toBeLessThan(40);
+    }
+    await pa.screenshot({ path: 'docs/screenshots/battle-timing-mobile.png', fullPage: true });
+  } finally {
+    await a.close();
+    await b.close();
+  }
 });

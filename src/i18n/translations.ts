@@ -1,5 +1,14 @@
 export const translations = {
   hy: {
+    battleTime: {
+      duration: 'Փուլի ժամանակը՝ վայրկյաններով',
+      hint: '0՝ անսահմանափակ։ 1–3600՝ ժամանակի սահմանափակում յուրաքանչյուր փուլի համար։',
+      invalid: 'Նշիր ամբողջ թիվ՝ 0-ից մինչև 3600։',
+      total: 'Ընդհանուր խաղաժամանակ',
+      limit: 'Յուրաքանչյուր փուլ',
+      unlimited: 'Անսահմանափակ',
+      solved: 'գուշակված բառ',
+    },
     themes: {
       մշակույթ: 'մշակույթ',
       սնունդ: 'սնունդ',
@@ -47,7 +56,7 @@ export const translations = {
       attemptsUsed: 'Փորձերն ավարտվել են։ Սպասում ենք փուլի ավարտին։',
       scoreboard: 'Մրցաշարային աղյուսակ',
       scoring:
-        'Լուծված բառ՝ 1000 միավոր։ Արագությունը տալիս է մինչև 90 հավելյալ միավոր, յուրաքանչյուր սխալ փորձ՝ −25։ Ավելի շատ լուծված բառերը միշտ առավելություն ունեն։',
+        'Առաջինը համեմատվում է գուշակված բառերի քանակը, հետո՝ ընդհանուր խաղաժամանակը․ ավելի արագը հաղթում է։ Հավասար ժամանակի դեպքում որոշում են միավորները՝ 1000 յուրաքանչյուր բառի համար, −25՝ սխալ փորձի։ Փուլերի միջև սպասումը չի հաշվվում։',
       errors: {
         credentials: 'Ստուգիր օգտանունն ու գաղտնաբառը։ Գաղտնաբառը պետք է ունենա 8–128 նիշ։',
         exists: 'Այս օգտանունն արդեն զբաղված է։',
@@ -281,6 +290,15 @@ export const translations = {
     },
   },
   en: {
+    battleTime: {
+      duration: 'Round time in seconds',
+      hint: '0 for unlimited. 1–3600 sets the time limit for each round.',
+      invalid: 'Enter a whole number from 0 to 3600.',
+      total: 'Total playing time',
+      limit: 'Each round',
+      unlimited: 'Unlimited',
+      solved: 'words solved',
+    },
     themes: {
       մշակույթ: 'culture',
       սնունդ: 'food',
@@ -328,7 +346,7 @@ export const translations = {
       attemptsUsed: 'No attempts left. Waiting for the round to finish.',
       scoreboard: 'Scoreboard',
       scoring:
-        'Solved word: 1,000 points. Up to 90 speed bonus; each wrong attempt costs 25. Solving more words always ranks higher.',
+        'More solved words rank first, then less total playing time. Points break equal-time ties: 1,000 per solved word, −25 per wrong attempt. Waiting between rounds is excluded.',
       errors: {
         credentials: 'Check your username and password (8–128 characters).',
         exists: 'This username is already taken.',
@@ -554,6 +572,15 @@ export const translations = {
     },
   },
   ru: {
+    battleTime: {
+      duration: 'Время раунда в секундах',
+      hint: '0 — без ограничения. 1–3600 — лимит времени на каждый раунд.',
+      invalid: 'Введите целое число от 0 до 3600.',
+      total: 'Общее время игры',
+      limit: 'Каждый раунд',
+      unlimited: 'Без ограничения',
+      solved: 'слов угадано',
+    },
     themes: {
       մշակույթ: 'культура',
       սնունդ: 'еда',
@@ -601,7 +628,7 @@ export const translations = {
       attemptsUsed: 'Попытки закончились. Ожидаем завершения раунда.',
       scoreboard: 'Таблица результатов',
       scoring:
-        'Решённое слово: 1000 очков. До 90 за скорость; каждая неверная попытка — минус 25. Больше решённых слов всегда даёт преимущество.',
+        'Сначала сравнивается число угаданных слов, затем общее время: быстрее — выше место. При равном времени решают очки: 1000 за слово, −25 за неверную попытку. Ожидание между раундами не учитывается.',
       errors: {
         credentials: 'Проверь имя пользователя и пароль (8–128 символов).',
         exists: 'Это имя пользователя уже занято.',

@@ -160,6 +160,80 @@ try {
   await new Promise((resolve) => setTimeout(resolve, 200));
   const health = await (await fetch(base)).json();
   assert.equal(health.rooms, 0);
+  const timedHost = client(),
+    timedPeer = client();
+  await Promise.all([
+    timedHost.wait((m) => m.type === 'hello'),
+    timedPeer.wait((m) => m.type === 'hello'),
+  ]);
+  timedHost.send('create_room', { roundSeconds: -1 });
+  assert.equal((await timedHost.wait((m) => m.type === 'error')).code, 'duration');
+  timedHost.send('create_room', { roundSeconds: 1 });
+  const timedId = (await timedHost.wait((m) => m.type === 'room_created')).roomId;
+  timedPeer.send('join_room', { roomId: timedId });
+  await timedHost.wait((m) => m.type === 'room_state' && m.players.length === 2);
+  timedHost.send('start_battle');
+  const timed = await timedHost.wait((m) => m.type === 'round_started');
+  assert.equal(timed.deadline - timed.startedAt, 1000);
+  await timedHost.wait((m) => m.type === 'round_finished');
+  const expired = await timedHost.wait((m) => m.type === 'room_state' && m.phase === 'between');
+  assert.ok(expired.players.every((p) => p.finished && p.totalTimeMs === 1000));
+  timedHost.send('leave_room');
+  timedPeer.send('leave_room');
+  await Promise.all([
+    timedHost.wait((m) => m.type === 'left'),
+    timedPeer.wait((m) => m.type === 'left'),
+  ]);
+  timedHost.send('create_room', { roundSeconds: 0 });
+  const unlimitedId = (await timedHost.wait((m) => m.type === 'room_created')).roomId;
+  timedPeer.send('join_room', { roomId: unlimitedId });
+  await timedHost.wait(
+    (m) => m.type === 'room_state' && m.roomId === unlimitedId && m.players.length === 2,
+  );
+  timedHost.send('start_battle');
+  let previousTotal = 0;
+  for (let i = 0; i < 4; i++) {
+    const config = await timedHost.wait((m) => m.type === 'round_started' && m.round === i);
+    assert.equal(config.deadline, null);
+    if (i === 0) await new Promise((resolve) => setTimeout(resolve, 1100));
+    const word = answers.find(
+      (w) => w.difficulty === config.level && len(w.word) === config.length,
+    ).word;
+    timedHost.send('submit_guess', { guess: word });
+    await timedHost.wait((m) => m.type === 'guess_result' && m.correct);
+    const early = await timedHost.wait(
+      (m) =>
+        m.type === 'room_state' &&
+        m.roomId === unlimitedId &&
+        m.round === i &&
+        m.phase === 'playing' &&
+        m.players.some((p) => p.solved),
+    );
+    const fast = early.players.find((p) => p.solved);
+    assert.ok(fast.totalTimeMs >= previousTotal);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    timedPeer.send('submit_guess', { guess: word });
+    await timedHost.wait((m) => m.type === 'round_finished' && m.round === i);
+    const end = await timedHost.wait(
+      (m) =>
+        m.type === 'room_state' &&
+        m.round === i &&
+        (m.phase === 'between' || m.phase === 'finished'),
+    );
+    assert.equal(end.players.find((p) => p.id === fast.id).totalTimeMs, fast.totalTimeMs);
+    assert.ok(end.players.find((p) => p.id !== fast.id).totalTimeMs > fast.totalTimeMs);
+    previousTotal = fast.totalTimeMs;
+  }
+  timedHost.send('leave_room');
+  timedPeer.send('leave_room');
+  await Promise.all([
+    timedHost.wait((m) => m.type === 'left'),
+    timedPeer.wait((m) => m.type === 'left'),
+  ]);
+  assert.equal((await (await fetch(base)).json()).rooms, 0);
+  console.log(
+    'PASS: configurable deadline, invalid duration, timeout accounting, unlimited four rounds, cumulative frozen player time and cleanup.',
+  );
   console.log(
     'PASS: two guest clients, authoritative start, four rounds, secret privacy, validation, duplicate start, cleanup, register/login/cookie restore/logout.',
   );

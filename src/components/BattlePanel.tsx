@@ -1,5 +1,6 @@
 import { useEffect, useEffectEvent, useRef, useState, type CSSProperties } from 'react';
 import { Copy, Crown, LogIn, Play, Users, ArrowLeft, Radio } from 'lucide-react';
+import { comparePlayers, elapsedRound, formatTime } from '../../shared/battle-rules.mjs';
 import { letters, mergeKeyboard } from '../game/engine';
 import { deleteBackward, isArmenian, normalizeWord } from '../game/armenian';
 import type { Mark } from '../game/types';
@@ -14,9 +15,17 @@ type Player = {
   finished: boolean;
   connected: boolean;
   solvedCount: number;
+  totalTimeMs: number;
 };
 type Guess = { guess: string; marks: Mark[] };
-type Round = { round: number; length: number; attempts: number; level: string; deadline: number };
+type Round = {
+  round: number;
+  length: number;
+  attempts: number;
+  level: string;
+  deadline: number | null;
+  startedAt: number;
+};
 export function BattlePanel({ onClose }: { onClose: () => void }) {
   const { t } = useI18n();
   const socket = useRef<WebSocket | null>(null);
@@ -30,6 +39,8 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
   const [hostId, setHostId] = useState('');
   const [players, setPlayers] = useState<Player[]>([]);
   const [phase, setPhase] = useState('idle');
+  const [roundSeconds, setRoundSeconds] = useState('90');
+  const serverOffset = useRef(0);
   const [maxPlayers, setMaxPlayers] = useState(2);
   const [round, setRound] = useState<Round | null>(null);
   const [guesses, setGuesses] = useState<Guess[]>([]);
@@ -70,6 +81,9 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
         setPending(false);
       }
       if (m.type === 'room_state') {
+        setRoundSeconds(String(m.roundSeconds ?? 90));
+        serverOffset.current = (m.serverNow ?? Date.now()) - Date.now();
+        setNow(Date.now() + serverOffset.current);
         setRoomId(m.roomId);
         setHostId(m.hostId);
         setPlayers(m.players);
@@ -85,7 +99,7 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
         setReveal('');
         setError('');
         setPending(false);
-        setNow(Date.now());
+        setNow(Date.now() + serverOffset.current);
       }
       if (m.type === 'guess_result') {
         setGuesses((prev) => [...prev, { guess: m.guess, marks: m.marks }]);
@@ -111,7 +125,7 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
   }, [retry]);
   useEffect(() => {
     if (phase !== 'playing') return;
-    const timer = window.setInterval(() => setNow(Date.now()), 250);
+    const timer = window.setInterval(() => setNow(Date.now() + serverOffset.current), 250);
     return () => clearInterval(timer);
   }, [phase]);
   function send(type: string, extra = {}) {
@@ -173,11 +187,20 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
     (state, item) => mergeKeyboard(state, item.guess, item.marks),
     {},
   );
-  const timeLeft = round ? Math.max(0, Math.ceil((round.deadline - now) / 1000)) : 0;
-  const ranked = players.slice().sort((a, b) => b.score - a.score);
+  const timeLeft =
+    round?.deadline != null ? Math.max(0, Math.ceil((round.deadline - now) / 1000)) : 0;
+  const totalTime = (p: Player) =>
+    (p.totalTimeMs ?? 0) +
+    (phase === 'playing' && !p.finished && round
+      ? elapsedRound(round.startedAt ?? now, round.deadline, now)
+      : 0);
+  const ranked = players.slice().sort(comparePlayers);
+  const validDuration = /^\d+$/.test(roundSeconds) && Number(roundSeconds) <= 3600;
   const errorKey = ['armenianOnly', 'correctLength', 'notInDictionary'].includes(error)
     ? `validation.${error}`
-    : `account.errors.${error}`;
+    : error === 'duration'
+      ? 'battleTime.invalid'
+      : `account.errors.${error}`;
   return (
     <div className="battle-panel">
       <a className="account-back" href="#home" onClick={onClose}>
@@ -193,7 +216,9 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
           <h1>{t('battle.title')}</h1>
           <p className="muted">{t('battle.subtitle')}</p>
         </div>
-        <span className={`connection ${connection}`}>{t(`account.${connection}`)}</span>
+        <span role="status" className={`connection ${connection}`}>
+          {t(`account.${connection}`)}
+        </span>
       </div>
       {connection === 'offline' ? (
         <div className="battle-offline">
@@ -233,13 +258,32 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
                 ))}
               </select>
             </label>
+            <label>
+              {t('battleTime.duration')}
+              <input
+                type="number"
+                min="0"
+                max="3600"
+                step="1"
+                value={roundSeconds}
+                aria-label={t('battleTime.duration')}
+                aria-describedby="duration-help"
+                onChange={(e) => setRoundSeconds(e.target.value)}
+              />
+              <small id="duration-help">{t('battleTime.hint')}</small>
+            </label>
+            {!validDuration && (
+              <p role="alert" className="auth-error">
+                {t('battleTime.invalid')}
+              </p>
+            )}
             <button
               className="primary"
-              disabled={connection !== 'online' || pending}
+              disabled={connection !== 'online' || pending || !validDuration}
               onClick={() => {
                 if (guest) send('guest', { name });
                 setPending(true);
-                send('create_room', { maxPlayers });
+                send('create_room', { maxPlayers, roundSeconds: Number(roundSeconds) });
               }}
             >
               <Users size={18} />
@@ -277,11 +321,11 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
               <p>{t('account.quickText')}</p>
               <button
                 className="text-button"
-                disabled={connection !== 'online' || pending}
+                disabled={connection !== 'online' || pending || !validDuration}
                 onClick={() => {
                   if (guest) send('guest', { name });
                   setPending(true);
-                  send('quick_match', { maxPlayers });
+                  send('quick_match', { maxPlayers, roundSeconds: Number(roundSeconds) });
                 }}
               >
                 {t('account.quickMatch')}
@@ -311,6 +355,28 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
               {t('account.leave')}
             </button>
           </div>
+          <section className="battle-time-summary" aria-label={t('battleTime.total')}>
+            <div className="time-summary-heading">
+              <strong>{t('battleTime.total')}</strong>
+              <span>
+                {t('battleTime.limit')}:{' '}
+                {Number(roundSeconds) === 0
+                  ? t('battleTime.unlimited')
+                  : `${roundSeconds} ${t('account.seconds')}`}
+              </span>
+            </div>
+            <div className="player-times">
+              {players.map((p) => (
+                <div className={`player-time ${p.id === myId ? 'me' : ''}`} key={p.id}>
+                  <span>{p.name}</span>
+                  <strong>{formatTime(totalTime(p))}</strong>
+                  <small>
+                    {p.solvedCount} / 4 · {t('battleTime.solved')}
+                  </small>
+                </div>
+              ))}
+            </div>
+          </section>
           <div className="battle-match-grid">
             <section className="battle-game">
               {phase === 'lobby' ? (
@@ -344,7 +410,9 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
                       <span>{t('ui.round', { current: round.round + 1, total: 4 })}</span>
                       <strong>
                         {phase === 'playing'
-                          ? `${timeLeft} ${t('account.seconds')}`
+                          ? round.deadline === null
+                            ? t('battleTime.unlimited')
+                            : `${timeLeft} ${t('account.seconds')}`
                           : t('battle.roundFinished')}
                       </strong>
                     </div>
@@ -415,7 +483,7 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
                         <h2>{t('battle.over')}</h2>
                         <p>
                           {ranked
-                            .filter((p) => p.score === ranked[0]?.score)
+                            .filter((p) => comparePlayers(p, ranked[0]) === 0)
                             .map((p) => p.name)
                             .join(', ')}
                         </p>
@@ -439,7 +507,8 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
                   <span>
                     {p.name}
                     <small>
-                      {p.solvedCount} / 4 · {t(p.connected ? 'account.online' : 'account.offline')}
+                      {formatTime(totalTime(p))} · {p.solvedCount} / 4 ·{' '}
+                      {t(p.connected ? 'account.online' : 'account.offline')}
                     </small>
                   </span>
                   <strong>{p.score}</strong>

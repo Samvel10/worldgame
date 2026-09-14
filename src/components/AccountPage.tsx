@@ -2,7 +2,15 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, Eye, EyeOff, ShieldCheck, UserRound } from 'lucide-react';
 import { useI18n } from '../i18n';
 export type Account = { id: string; name: string; guest: false };
-type History = { at: string; score: number; place: number; players: number; solved: number };
+import { formatTime } from '../../shared/battle-rules.mjs';
+type History = {
+  totalTimeMs?: number;
+  at: string;
+  score: number;
+  place: number;
+  players: number;
+  solved: number;
+};
 export function AccountPage({
   user,
   mode,
@@ -126,6 +134,12 @@ export function AccountPage({
                         </strong>
                         <span>
                           {item.score} {t('battle.points')}
+                          {item.totalTimeMs !== undefined && (
+                            <>
+                              {' '}
+                              · {t('battleTime.total')}: {formatTime(item.totalTimeMs)}
+                            </>
+                          )}
                         </span>
                       </li>
                     ))}

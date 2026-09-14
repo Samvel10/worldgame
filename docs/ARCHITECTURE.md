@@ -13,7 +13,7 @@ flowchart TD
   Battle --> WS[WebSocket /ws]
   WS --> Session[Read HttpOnly account cookie or guest identity]
   Session --> Rooms[One active room per socket]
-  Rooms --> Match[Four timed rounds]
+  Rooms --> Match[Four host-configured rounds]
   Match --> Validate[Dictionary, length, attempts, repeated guess checks]
   Validate --> Marks[Two-pass duplicate-letter evaluation]
   Marks --> Private[Marks sent only to guessing player]
@@ -35,3 +35,9 @@ Apache serves `/opt/worldgame/current/dist` and proxies `/api/` plus `/ws` to th
 - Rooms support 2–8 players. Public matchmaking joins a waiting room; its host starts when ready.
 - Reconnecting after a lost Battle connection returns to the lobby. Unfinished matches are not restored after process restart. Account sessions and completed history do survive restart.
 - Solo statistics are local to the device; Battle history belongs to the account.
+
+## Battle timing
+
+Host `roundSeconds` accepts integers 0–3600 (default 90); zero creates no deadline or timeout. Public matchmaking only matches identical durations. `shared/battle-rules.mjs` defines validation, elapsed time and shared ranking. The server settles elapsed time once per player/round on solve, attempts exhausted, disconnect, or deadline; intermission and waiting after completion are excluded. Ranking compares solved count, then accumulated milliseconds, then points. Live time above the board uses server clock offset; final time and rank come from the server and are persisted in history.
+
+Deployment archives must include `shared/` alongside `server/`, `src/data/`, `dist/` and production package manifests.

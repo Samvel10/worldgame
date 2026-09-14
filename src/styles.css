@@ -2335,3 +2335,82 @@ a.header-help {
     font-size: 11px;
   }
 }
+
+/* Keep connection status compact instead of stretching to the header height. */
+.battle-top {
+  align-items: flex-start;
+}
+.connection {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  align-self: flex-start;
+  border: 0;
+  padding: 6px 0;
+  border-radius: 0;
+}
+.connection::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.battle-time-summary {
+  margin: 18px 0;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.time-summary-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 14px;
+}
+.time-summary-heading > span {
+  color: var(--muted);
+}
+.player-times {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+.player-time {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  background: var(--soft);
+  border-radius: 8px;
+  min-width: 0;
+}
+.player-time.me {
+  background: var(--green-soft);
+}
+.player-time > span {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.player-time > strong {
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+.player-time > small,
+.lobby-card label small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.battle-top {
+  position: relative;
+}
+.battle-top > .connection {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
