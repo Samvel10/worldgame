@@ -231,6 +231,48 @@ try {
     timedPeer.wait((m) => m.type === 'left'),
   ]);
   assert.equal((await (await fetch(base)).json()).rooms, 0);
+  const partialA = client(),
+    partialB = client();
+  await Promise.all([
+    partialA.wait((m) => m.type === 'hello'),
+    partialB.wait((m) => m.type === 'hello'),
+  ]);
+  partialA.send('create_room', { roundSeconds: 2 });
+  const partialRoom = (await partialA.wait((m) => m.type === 'room_created')).roomId;
+  partialB.send('join_room', { roomId: partialRoom });
+  await partialA.wait((m) => m.type === 'room_state' && m.players.length === 2);
+  partialA.send('start_battle');
+  await partialA.wait((m) => m.type === 'round_started');
+  partialA.send('submit_guess', { guess: 'անալի' });
+  const discovery = await partialA.wait((m) => m.type === 'guess_result');
+  assert.deepEqual(discovery.marks, ['correct', 'correct', 'absent', 'absent', 'absent']);
+  assert.equal(discovery.score, 195);
+  partialA.send('submit_guess', { guess: 'ԱՆԱԼԻ' });
+  assert.equal((await partialA.wait((m) => m.type === 'error')).code, 'repeated');
+  partialA.send('submit_guess', { guess: 'անամպ' });
+  const repeatedGreens = await partialA.wait((m) => m.type === 'guess_result');
+  assert.equal(repeatedGreens.scoreDelta, -5);
+  assert.equal(repeatedGreens.score, 190);
+  partialB.send('submit_guess', { guess: 'լարել' });
+  const yellow = await partialB.wait((m) => m.type === 'guess_result');
+  assert.equal(yellow.score, 75);
+  for (let i = 0; i < 4; i++)
+    await partialA.wait((m) => m.type === 'round_finished' && m.round === i);
+  const result = await partialA.wait((m) => m.type === 'room_state' && m.phase === 'finished');
+  assert.ok(result.players.every((p) => p.solvedCount === 0));
+  assert.deepEqual(
+    result.players.map((p) => p.score),
+    [190, 75],
+  );
+  partialA.send('leave_room');
+  partialB.send('leave_room');
+  await Promise.all([
+    partialA.wait((m) => m.type === 'left'),
+    partialB.wait((m) => m.type === 'left'),
+  ]);
+  console.log(
+    'PASS: zero-solve match retains partial points; repeated normalized word rejected; repeated greens not rewarded twice.',
+  );
   console.log(
     'PASS: configurable deadline, invalid duration, timeout accounting, unlimited four rounds, cumulative frozen player time and cleanup.',
   );

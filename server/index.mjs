@@ -3,7 +3,12 @@ import { WebSocketServer } from 'ws';
 import { randomBytes, randomInt } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { roundDuration, elapsedRound, comparePlayers } from '../shared/battle-rules.mjs';
+import {
+  roundDuration,
+  elapsedRound,
+  comparePlayers,
+  scoreGuess,
+} from '../shared/battle-rules.mjs';
 import { accountStore } from './accounts.mjs';
 const store = accountStore(process.env.BARRIK_DATA_DIR ?? path.resolve('server/data'));
 const normalize = (s) => s.normalize('NFC').toLowerCase().replace(/եւ|եվ/g, 'և');
@@ -118,6 +123,7 @@ function start(room) {
     p.solved = false;
     p.finished = p.socket?.readyState !== 1;
     p.guesses = [];
+    p.discoveries = undefined;
     p.roundTimeMs = p.finished ? 0 : null;
   }
   broadcast(room, {
@@ -274,8 +280,11 @@ function handle(ws, m) {
     player.solved = guess === room.answer;
     if (player.solved) {
       player.solvedCount++;
-      player.score += 1000 - 25 * (player.guesses.length - 1);
     }
+    const result = scoreGuess(player.discoveries, letters(guess), marks, player.solved);
+    player.discoveries = result.progress;
+    const previousScore = player.score;
+    player.score = Math.max(0, player.score + result.delta);
     player.finished = player.solved || player.guesses.length >= rounds[room.round].attempts;
     if (player.finished) settleTime(room, player);
     send(ws, {
@@ -285,6 +294,7 @@ function handle(ws, m) {
       correct: player.solved,
       finished: player.finished,
       score: player.score,
+      scoreDelta: player.score - previousScore,
     });
     publish(room);
     if ([...room.players.values()].every((p) => p.finished)) finish(room);

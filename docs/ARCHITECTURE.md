@@ -38,6 +38,10 @@ Apache serves `/opt/worldgame/current/dist` and proxies `/api/` plus `/ws` to th
 
 ## Battle timing
 
-Host `roundSeconds` accepts integers 0–3600 (default 90); zero creates no deadline or timeout. Public matchmaking only matches identical durations. `shared/battle-rules.mjs` defines validation, elapsed time and shared ranking. The server settles elapsed time once per player/round on solve, attempts exhausted, disconnect, or deadline; intermission and waiting after completion are excluded. Ranking compares solved count, then accumulated milliseconds, then points. Live time above the board uses server clock offset; final time and rank come from the server and are persisted in history.
+Host `roundSeconds` accepts integers 0–3600 (default 90); zero creates no deadline or timeout. Public matchmaking only matches identical durations. `shared/battle-rules.mjs` defines validation, elapsed time and shared ranking. The server settles elapsed time once per player/round on solve, attempts exhausted, disconnect, or deadline; intermission and waiting after completion are excluded. Ranking compares solved count, then points, then accumulated milliseconds. Live time above the board uses server clock offset; final time and rank come from the server and are persisted in history.
 
 Deployment archives must include `shared/` alongside `server/`, `src/data/`, `dist/` and production package manifests.
+
+## Partial-discovery scoring
+
+`scoreGuess` retains a per-round set of green positions and maximum confirmed occurrence count per Armenian letter. Each new green position is worth 100; confirmed occurrences beyond green positions are worth 40 each. Only the increase in discovery credit is awarded, so moving a yellow or reusing greens cannot farm points. Yellow-to-green pays the remaining 60. Every valid unsolved guess costs 5; a solved word adds 1000. Server clamps the running match score at zero. Duplicate normalized words and invalid guesses are rejected before scoring or spending an attempt. Discovery state resets each round; match points persist. Ranking keeps solved count first, then points, then total elapsed time; exact ties remain ties.

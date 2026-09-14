@@ -46,6 +46,7 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [draft, setDraft] = useState('');
   const [error, setError] = useState('');
+  const [scoreDelta, setScoreDelta] = useState<number | null>(null);
   const [reveal, setReveal] = useState('');
   const [now, setNow] = useState(() => Date.now());
   const [pending, setPending] = useState(false);
@@ -97,11 +98,13 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
         setGuesses([]);
         setDraft('');
         setReveal('');
+        setScoreDelta(null);
         setError('');
         setPending(false);
         setNow(Date.now() + serverOffset.current);
       }
       if (m.type === 'guess_result') {
+        setScoreDelta(m.scoreDelta ?? 0);
         setGuesses((prev) => [...prev, { guess: m.guess, marks: m.marks }]);
         setDraft('');
         setPending(false);
@@ -416,6 +419,13 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
                           : t('battle.roundFinished')}
                       </strong>
                     </div>
+                    {scoreDelta !== null && (
+                      <p className="battle-result-note" role="status">
+                        {t('battleScoring.change', {
+                          points: `${scoreDelta > 0 ? '+' : ''}${scoreDelta}`,
+                        })}
+                      </p>
+                    )}
                     <div
                       className={`board ${round.length > 10 ? 'long-board' : ''}`}
                       style={{ '--letters': round.length, '--tile-size': '48px' } as CSSProperties}

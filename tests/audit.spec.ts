@@ -275,3 +275,51 @@ test('host time setting, compact status, live totals and responsive timing cards
     await b.close();
   }
 });
+
+test('partial discoveries decide an otherwise unsolved Battle without repeat credit', async ({
+  browser,
+}) => {
+  const a = await browser.newContext(),
+    b = await browser.newContext();
+  const pa = await a.newPage(),
+    pb = await b.newPage();
+  try {
+    for (const [page, name] of [
+      [pa, 'Discoverer'],
+      [pb, 'Opponent'],
+    ] as const) {
+      await page.goto('/#battle');
+      await page.getByLabel('Քո անունը', { exact: true }).fill(name);
+    }
+    await pa.getByLabel('Փուլի ժամանակը՝ վայրկյաններով', { exact: true }).fill('3');
+    await pa.getByRole('button', { name: 'Ստեղծել սենյակ', exact: true }).click();
+    const code = await pa.locator('.invitation-code').innerText();
+    await pb.getByLabel('Սենյակի կոդ', { exact: true }).fill(code);
+    await pb.getByRole('button', { name: 'Միանալ', exact: true }).click();
+    await pa.getByRole('button', { name: 'Սկսել Battle-ը', exact: true }).click();
+    const field = pa.getByRole('textbox', { name: 'Քո բառը' });
+    await field.fill('անալի');
+    await field.press('Enter');
+    await expect(pa.locator('.player-row.me > strong')).toHaveText('195');
+    await field.fill('ԱՆԱԼԻ');
+    await field.press('Enter');
+    await expect(pa.getByRole('alert')).toBeVisible();
+    await expect(pa.locator('.player-row.me > strong')).toHaveText('195');
+    await expect(pa.locator('.board .tile.correct')).toHaveCount(2);
+    await field.fill('անամպ');
+    await field.press('Enter');
+    await expect(pa.locator('.player-row.me > strong')).toHaveText('190');
+    await expect(pa.getByText('Փորձի միավորները՝ -5', { exact: true })).toBeVisible();
+    await expect(pa.locator('.board .tile.correct')).toHaveCount(4);
+    await pa.setViewportSize({ width: 1440, height: 1100 });
+    await pa.screenshot({ path: 'docs/screenshots/battle-partial-score.png', fullPage: true });
+    await expect(pa.getByRole('heading', { name: 'Battle-ն ավարտվեց' })).toBeVisible({
+      timeout: 20000,
+    });
+    await expect(pa.locator('.battle-final p')).toHaveText('Discoverer');
+    await expect(pb.locator('.battle-final p')).toHaveText('Discoverer');
+  } finally {
+    await a.close();
+    await b.close();
+  }
+});

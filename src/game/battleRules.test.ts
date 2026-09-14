@@ -18,10 +18,10 @@ describe('Battle time rules', () => {
     expect(elapsedRound(1000, null, 9000)).toBe(8000);
     expect(elapsedRound(1000, null, 900)).toBe(0);
   });
-  it('prioritizes solved words, then less total time, then points', () => {
+  it('prioritizes solved words, then points, then less total time', () => {
     const a = { solvedCount: 2, totalTimeMs: 60000, score: 2000 };
     expect(comparePlayers(a, { solvedCount: 1, totalTimeMs: 1, score: 5000 })).toBeLessThan(0);
-    expect(comparePlayers(a, { ...a, totalTimeMs: 70000, score: 2100 })).toBeLessThan(0);
+    expect(comparePlayers(a, { ...a, totalTimeMs: 70000, score: 2000 })).toBeLessThan(0);
     expect(comparePlayers(a, { ...a, score: 1900 })).toBeLessThan(0);
     expect(comparePlayers(a, { ...a })).toBe(0);
   });

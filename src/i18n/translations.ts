@@ -1,5 +1,6 @@
 export const translations = {
   hy: {
+    battleScoring: { change: 'Փորձի միավորները՝ {points}' },
     battleTime: {
       duration: 'Փուլի ժամանակը՝ վայրկյաններով',
       hint: '0՝ անսահմանափակ։ 1–3600՝ ժամանակի սահմանափակում յուրաքանչյուր փուլի համար։',
@@ -56,7 +57,7 @@ export const translations = {
       attemptsUsed: 'Փորձերն ավարտվել են։ Սպասում ենք փուլի ավարտին։',
       scoreboard: 'Մրցաշարային աղյուսակ',
       scoring:
-        'Առաջինը համեմատվում է գուշակված բառերի քանակը, հետո՝ ընդհանուր խաղաժամանակը․ ավելի արագը հաղթում է։ Հավասար ժամանակի դեպքում որոշում են միավորները՝ 1000 յուրաքանչյուր բառի համար, −25՝ սխալ փորձի։ Փուլերի միջև սպասումը չի հաշվվում։',
+        'Նոր կանաչ՝ +100, նոր դեղին՝ +40, դեղինից կանաչ՝ ևս +60։ Նույն բացահայտման համար կրկին միավոր չի տրվում։ Սխալ վավեր փորձ՝ −5, ամբողջ բառի գուշակում՝ +1000 հավելավճար։ Միավորները չեն իջնում 0-ից։ Նախ համեմատվում են գուշակված բառերը, ապա միավորները, հետո՝ ընդհանուր ժամանակը։',
       errors: {
         credentials: 'Ստուգիր օգտանունն ու գաղտնաբառը։ Գաղտնաբառը պետք է ունենա 8–128 նիշ։',
         exists: 'Այս օգտանունն արդեն զբաղված է։',
@@ -290,6 +291,7 @@ export const translations = {
     },
   },
   en: {
+    battleScoring: { change: 'Points for this guess: {points}' },
     battleTime: {
       duration: 'Round time in seconds',
       hint: '0 for unlimited. 1–3600 sets the time limit for each round.',
@@ -346,7 +348,7 @@ export const translations = {
       attemptsUsed: 'No attempts left. Waiting for the round to finish.',
       scoreboard: 'Scoreboard',
       scoring:
-        'More solved words rank first, then less total playing time. Points break equal-time ties: 1,000 per solved word, −25 per wrong attempt. Waiting between rounds is excluded.',
+        'New green: +100; new yellow: +40; yellow to green: +60 more. Discoveries are rewarded once. Valid wrong guess: −5; solved word: +1000 bonus. Scores stay at or above 0. Rank: solved words, then points, then total time.',
       errors: {
         credentials: 'Check your username and password (8–128 characters).',
         exists: 'This username is already taken.',
@@ -572,6 +574,7 @@ export const translations = {
     },
   },
   ru: {
+    battleScoring: { change: 'Очки за попытку: {points}' },
     battleTime: {
       duration: 'Время раунда в секундах',
       hint: '0 — без ограничения. 1–3600 — лимит времени на каждый раунд.',
@@ -628,7 +631,7 @@ export const translations = {
       attemptsUsed: 'Попытки закончились. Ожидаем завершения раунда.',
       scoreboard: 'Таблица результатов',
       scoring:
-        'Сначала сравнивается число угаданных слов, затем общее время: быстрее — выше место. При равном времени решают очки: 1000 за слово, −25 за неверную попытку. Ожидание между раундами не учитывается.',
+        'Новая зелёная: +100; новая жёлтая: +40; переход к зелёной: ещё +60. За повторное открытие очки не начисляются. Неверная допустимая попытка: −5; угаданное слово: бонус +1000. Счёт не ниже 0. Сначала сравниваются угаданные слова, затем очки и общее время.',
       errors: {
         credentials: 'Проверь имя пользователя и пароль (8–128 символов).',
         exists: 'Это имя пользователя уже занято.',
