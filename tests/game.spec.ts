@@ -259,3 +259,28 @@ test('Tab-focused virtual keys still support native Enter activation', async ({ 
   await page.keyboard.press('Space');
   await expect(page.getByRole('textbox', { name: 'Քո բառը' })).toHaveValue('էէ');
 });
+
+test('Armenian keyboard includes every letter exactly once and types խ on all screens', async ({
+  page,
+}) => {
+  await setup(page, { length: 5 });
+  const alphabet = Array.from('աբգդեզէըթժիլխծկհձղճմյնշոչպջռսվտրցւփքօֆ');
+  const expected = [...alphabet, 'ու', 'և'];
+  const keys = page.locator('.keyboard .key-row:not(.keyboard-actions) button');
+  expect(await keys.allTextContents()).toHaveLength(expected.length);
+  for (const letter of expected)
+    await expect(keys.filter({ hasText: new RegExp(`^${letter}$`) })).toHaveCount(1);
+  const input = page.getByRole('textbox', { name: 'Քո բառը' });
+  for (const width of [320, 390, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.getByRole('button', { name: 'խ', exact: true }).click();
+    await expect(input).toHaveValue('խ');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    await page.getByRole('button', { name: 'Ջնջել վերջին տառը', exact: true }).click();
+    await expect(input).toHaveValue('');
+  }
+  await page.setViewportSize({ width: 390, height: 1000 });
+  await page.screenshot({ path: 'docs/screenshots/keyboard-complete-mobile.png', fullPage: true });
+});
