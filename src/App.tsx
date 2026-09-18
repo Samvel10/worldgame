@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { deleteBackward } from './game/armenian';
 import { Board } from './components/Board';
+import { HintShop } from './components/HintShop';
 import { Keyboard } from './components/Keyboard';
 import { Modal } from './components/Modal';
 import { SettingsPanel } from './components/SettingsPanel';
@@ -31,6 +32,10 @@ import { useI18n } from './i18n';
 import type { Theme } from './game/types';
 import type { Account } from './components/AccountPage';
 import { BalanceBadge, RewardBanner } from './components/BalanceBadge';
+import { HINT_COSTS } from '../shared/economy.mjs';
+
+type HintKind = keyof typeof HINT_COSTS;
+
 export default function App({
   account,
   onAccount,
@@ -47,6 +52,9 @@ export default function App({
   const accountName = account?.name;
   const rewardedWin = useRef<string | null>(null);
   const [earnedKopecks, setEarnedKopecks] = useState<number | null>(null);
+  const [hintBusy, setHintBusy] = useState(false);
+  const [hintNote, setHintNote] = useState('');
+  const [letterReveal, setLetterReveal] = useState<{ letter: string; index: number } | null>(null);
   const [dialog, setDialog] = useState<
     'help' | 'stats' | 'settings' | 'reset' | 'restart' | 'battle' | null
   >(null);
@@ -100,11 +108,16 @@ export default function App({
     window.addEventListener('keydown', handle);
     return () => window.removeEventListener('keydown', handle);
   }, [dialog, game]);
+  function clearHintFeedback() {
+    setHintNote('');
+    setLetterReveal(null);
+  }
   function start() {
     if (game.status === 'playing' && (game.round.guesses.length || game.draft))
       setDialog('restart');
     else {
       setEarnedKopecks(null);
+      clearHintFeedback();
       game.start();
       input.current?.focus();
     }
@@ -112,8 +125,59 @@ export default function App({
   const close = () => setDialog(null);
   const beginGame = () => {
     setEarnedKopecks(null);
+    clearHintFeedback();
     return game.start();
   };
+  async function buyHint(kind: HintKind) {
+    if (hintBusy || game.status !== 'playing') return;
+    if (!account || !onAccount) {
+      location.hash = 'login';
+      return;
+    }
+    if (kind === 'letter' && !game.canRevealLetter()) {
+      setHintNote(t('hints.noLetter'));
+      return;
+    }
+    if (kind === 'clue' && !game.canShowClue()) {
+      setHintNote(t('hints.noClue'));
+      return;
+    }
+    setHintBusy(true);
+    setHintNote('');
+    try {
+      const res = await fetch('/api/rewards/spend', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ kind }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 402) {
+        if (data.user) onAccount(data.user);
+        setHintNote(t('hints.funds'));
+        return;
+      }
+      if (!res.ok || !data.user) {
+        const code = typeof data.code === 'string' ? data.code : 'server';
+        setHintNote(t(`account.errors.${code}` as 'account.errors.server'));
+        return;
+      }
+      onAccount(data.user);
+      if (kind === 'letter') {
+        const revealed = game.revealLetter();
+        if (revealed) setLetterReveal(revealed);
+      } else if (kind === 'clue') {
+        game.showClue();
+        setLetterReveal(null);
+      } else {
+        game.skipWord();
+        setLetterReveal(null);
+      }
+    } catch {
+      setHintNote(t('account.errors.network'));
+    } finally {
+      setHintBusy(false);
+    }
+  }
   return (
     <>
       <a className="skip-link" href="#game">
@@ -233,6 +297,29 @@ export default function App({
                   status={game.status}
                   errorId={game.errorId}
                 />
+                {letterReveal && (
+                  <p className="hint-feedback letter-feedback" role="status">
+                    {t('hints.revealed', {
+                      letter: letterReveal.letter,
+                      position: letterReveal.index + 1,
+                    })}
+                  </p>
+                )}
+                {game.paidClue && (
+                  <p className="hint-feedback clue-feedback" role="status">
+                    {t('hints.clueShown', { clue: game.paidClue })}
+                  </p>
+                )}
+                {game.skippedWord && (
+                  <p className="hint-feedback skip-feedback" role="status">
+                    {t('hints.skipped', { word: game.skippedWord })}
+                  </p>
+                )}
+                {hintNote && (
+                  <p className="hint-feedback hint-error" role="status">
+                    {hintNote}
+                  </p>
+                )}
                 <div
                   className={`game-message ${game.message ? 'error-message' : ''}`}
                   role="status"
@@ -296,6 +383,20 @@ export default function App({
                   >
                     {t('playAgain')} <ArrowRight size={17} />
                   </button>
+                )}
+                {game.status === 'playing' && (
+                  <HintShop
+                    account={account}
+                    balance={account?.balance ?? 0}
+                    busy={hintBusy}
+                    canLetter={game.canRevealLetter()}
+                    canClue={game.canShowClue()}
+                    canSkip
+                    onBuy={buyHint}
+                    onLogin={() => {
+                      location.hash = 'login';
+                    }}
+                  />
                 )}
               </div>
               <div className="keyboard-section">

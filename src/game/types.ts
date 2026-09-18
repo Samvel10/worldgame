@@ -7,6 +7,8 @@ export interface Answer {
   difficulty: Difficulty;
   theme: string;
   definition?: string;
+  /** Soft paid clue — does not name the word. */
+  hint?: string;
 }
 export interface Settings {
   mode: Mode;
@@ -28,5 +30,9 @@ export interface Round {
   attempts: number;
   mode: Mode;
   hintUsed: boolean;
+  /** Paid letter reveal: tile index → letter */
+  revealed: Record<number, string>;
+  /** Paid soft description shown once */
+  clueShown: boolean;
 }
 export type Theme = 'light' | 'dark';

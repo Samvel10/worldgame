@@ -7,6 +7,7 @@ import {
   normalizeBalance,
   SOLO_WIN_REWARD,
   SOLO_REWARD_COOLDOWN_MS,
+  HINT_COSTS,
 } from '../shared/economy.mjs';
 const derive = promisify(scrypt);
 const digest = (value) => createHash('sha256').update(value).digest('hex');
@@ -55,6 +56,14 @@ export function accountStore(directory) {
     accounts[id].balance = normalizeBalance(accounts[id].balance) + amount;
     save();
     return publicUser(id);
+  }
+  function debit(id, amount) {
+    if (!accounts[id] || !Number.isInteger(amount) || amount <= 0) return { error: 'server' };
+    const balance = normalizeBalance(accounts[id].balance);
+    if (balance < amount) return { error: 'funds', user: publicUser(id) };
+    accounts[id].balance = balance - amount;
+    save();
+    return { user: publicUser(id), spent: amount };
   }
   function session(req) {
     const token = /(?:^|;\s*)barrik_session=([a-f0-9]{64})(?:;|$)/.exec(
@@ -117,6 +126,48 @@ export function accountStore(directory) {
       }
       soloRewardAt.set(user.id, Date.now());
       reply(res, 200, { user: updated, rewarded: SOLO_WIN_REWARD, reason: 'solo_win' });
+      return true;
+    }
+    if (req.method === 'POST' && url.pathname === '/api/rewards/spend') {
+      if (!sameOrigin(req)) {
+        reply(res, 403, { code: 'origin' });
+        return true;
+      }
+      if (!user) {
+        reply(res, 401, { code: 'login' });
+        return true;
+      }
+      let body = '';
+      for await (const chunk of req) {
+        body += chunk;
+        if (body.length > 4096) {
+          reply(res, 413, { code: 'credentials' });
+          return true;
+        }
+      }
+      let data;
+      try {
+        data = body ? JSON.parse(body) : {};
+      } catch {
+        reply(res, 400, { code: 'credentials' });
+        return true;
+      }
+      const kind = String(data.kind ?? '');
+      const cost = HINT_COSTS[kind];
+      if (!cost) {
+        reply(res, 400, { code: 'not_found' });
+        return true;
+      }
+      const result = debit(user.id, cost);
+      if (result.error === 'funds') {
+        reply(res, 402, { code: 'funds', user: result.user });
+        return true;
+      }
+      if (result.error || !result.user) {
+        reply(res, 500, { code: 'server' });
+        return true;
+      }
+      reply(res, 200, { user: result.user, spent: result.spent, kind });
       return true;
     }
     if (
@@ -227,5 +278,5 @@ export function accountStore(directory) {
       save();
     }
   }
-  return { handle, session, record, credit };
+  return { handle, session, record, credit, debit };
 }

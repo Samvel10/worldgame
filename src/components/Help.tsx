@@ -30,6 +30,7 @@ export function Help() {
         <li>{t('helpContent.ruleDuplicates')}</li>
         <li>{t('helpContent.ruleKeyboard')}</li>
         <li>{t('helpContent.ruleHint')}</li>
+        <li>{t('helpContent.rulePaidHints')}</li>
         <li>{t('helpContent.ruleStats')}</li>
       </ul>
       <p className="source-note">

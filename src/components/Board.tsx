@@ -42,15 +42,17 @@ export function Board({
           >
             {Array.from({ length }, (_, col) => {
               const mark = marks?.[col];
+              const hinted = Boolean(current && !chars[col] && round.revealed?.[col]);
+              const glyph = chars[col] || (hinted ? round.revealed[col] : '');
               return (
                 <div
-                  className={`tile ${mark ?? 'neutral'} ${chars[col] ? 'filled' : ''} ${guess ? 'reveal' : ''}`}
+                  className={`tile ${mark ?? 'neutral'} ${glyph ? 'filled' : ''} ${guess ? 'reveal' : ''} ${hinted ? 'hint-revealed' : ''}`}
                   style={{ '--delay': `${Math.min(col * 65, 700)}ms` } as CSSProperties}
                   key={col}
                   role="img"
-                  aria-label={`${col + 1}՝ ${chars[col] || t('account.emptyTile')}${mark ? `՝ ${t(`helpContent.${mark}`)}` : ''}`}
+                  aria-label={`${col + 1}՝ ${glyph || t('account.emptyTile')}${mark ? `՝ ${t(`helpContent.${mark}`)}` : ''}${hinted ? `՝ ${t('hints.revealedTile')}` : ''}`}
                 >
-                  <span key={chars[col]}>{chars[col]}</span>
+                  <span key={glyph}>{glyph}</span>
                   {mark && <small aria-hidden="true">{markSymbols[mark]}</small>}
                 </div>
               );

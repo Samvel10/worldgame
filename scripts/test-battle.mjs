@@ -154,6 +154,25 @@ try {
   assert.equal((await api('session', null, account.cookie)).data.user.balance, 103);
   assert.equal((await api('rewards/solo-win', {}, account.cookie)).status, 429);
   assert.equal((await api('rewards/solo-win', {})).status, 401);
+  // Paid solo hints: letter 10, clue 20, skip 50 — debit only with balance.
+  const letterSpend = await api('rewards/spend', { kind: 'letter' }, account.cookie);
+  assert.equal(letterSpend.status, 200);
+  assert.equal(letterSpend.data.spent, 10);
+  assert.equal(letterSpend.data.kind, 'letter');
+  assert.equal(letterSpend.data.user.balance, 93);
+  const clueSpend = await api('rewards/spend', { kind: 'clue' }, account.cookie);
+  assert.equal(clueSpend.status, 200);
+  assert.equal(clueSpend.data.spent, 20);
+  assert.equal(clueSpend.data.user.balance, 73);
+  const skipSpend = await api('rewards/spend', { kind: 'skip' }, account.cookie);
+  assert.equal(skipSpend.status, 200);
+  assert.equal(skipSpend.data.spent, 50);
+  assert.equal(skipSpend.data.user.balance, 23);
+  assert.equal((await api('rewards/spend', { kind: 'skip' }, account.cookie)).status, 402);
+  assert.equal((await api('rewards/spend', { kind: 'letter' }, peer.cookie)).status, 200);
+  assert.equal((await api('session', null, peer.cookie)).data.user.balance, 90);
+  assert.equal((await api('rewards/spend', { kind: 'bogus' }, account.cookie)).status, 400);
+  assert.equal((await api('rewards/spend', { kind: 'letter' })).status, 401);
   a.send('quick_match', { maxPlayers: 3 });
   const publicRoom = (await a.wait((m) => m.type === 'room_created')).roomId;
   b.send('quick_match', { maxPlayers: 3 });
@@ -331,9 +350,9 @@ try {
   const payout = await champ.wait(
     (m) => m.type === 'balance' && m.reason === 'battle_win' && m.rewarded === 20,
   );
-  assert.equal(payout.balance, 123);
-  assert.equal((await api('session', null, account.cookie)).data.user.balance, 123);
-  assert.equal((await api('session', null, peer.cookie)).data.user.balance, 100);
+  assert.equal(payout.balance, 43);
+  assert.equal((await api('session', null, account.cookie)).data.user.balance, 43);
+  assert.equal((await api('session', null, peer.cookie)).data.user.balance, 90);
   champ.send('leave_room');
   foe.send('leave_room');
   await Promise.all([champ.wait((m) => m.type === 'left'), foe.wait((m) => m.type === 'left')]);
@@ -346,7 +365,7 @@ try {
   console.log(
     'PASS: two guest clients, authoritative start, four rounds, secret privacy, validation, duplicate start, cleanup, register/login/cookie restore/logout.',
   );
-  console.log('PASS: solo +3 and Battle winner +20 kopeck rewards with per-account balances.');
+  console.log('PASS: solo +3, Battle winner +20, and paid hints (10/20/50) with per-account balances.');
 } finally {
   for (const ws of clients) ws.terminate();
   child.kill();

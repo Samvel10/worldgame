@@ -17,12 +17,14 @@ import {
 } from '../game/engine';
 import { isHistory, isSettings, isStats, safeRead, safeWrite, storageKeys } from '../game/storage';
 import type { KeyboardState, Round, Settings } from '../game/types';
+
 export const defaultSettings: Settings = {
   mode: 'easy',
   length: 5,
   attempts: 6,
   difficulty: 'all',
 };
+
 function makeRound(settings: Settings): Round | null {
   const pool = filterAnswers(
     settings.mode === 'custom' ? settings.difficulty : settings.mode,
@@ -38,8 +40,22 @@ function makeRound(settings: Settings): Round | null {
     attempts: attemptsFor(settings.mode, letters(selection.answer.word).length, settings.attempts),
     mode: settings.mode,
     hintUsed: false,
+    revealed: {},
+    clueShown: false,
   };
 }
+
+function knownCorrectPositions(round: Round): Set<number> {
+  const known = new Set<number>();
+  for (const guess of round.guesses) {
+    evaluateGuess(guess, round.answer.word).forEach((mark, index) => {
+      if (mark === 'correct') known.add(index);
+    });
+  }
+  for (const key of Object.keys(round.revealed)) known.add(Number(key));
+  return known;
+}
+
 export function useGame() {
   const { t } = useI18n();
   const [settings, setSettingsState] = useState(() =>
@@ -54,6 +70,8 @@ export function useGame() {
         attempts: 7,
         mode: 'easy',
         hintUsed: false,
+        revealed: {},
+        clueShown: false,
       },
   );
   const [stats, setStats] = useState(() => safeRead(storageKeys.stats, emptyStats(), isStats));
@@ -61,12 +79,15 @@ export function useGame() {
   const [message, setMessage] = useState('');
   const [errorId, setErrorId] = useState(0);
   const [resultOpen, setResultOpen] = useState(false);
+  const [paidClue, setPaidClue] = useState('');
+  const [skippedWord, setSkippedWord] = useState('');
   const status = gameStatus(round.answer.word, round.guesses, round.attempts);
   const length = letters(round.answer.word).length;
   const keyboard = round.guesses.reduce<KeyboardState>(
     (state, guess) => mergeKeyboard(state, guess, evaluateGuess(guess, round.answer.word)),
     {},
   );
+
   function error(text: string) {
     setMessage(text);
     setErrorId((n) => n + 1);
@@ -125,12 +146,58 @@ export function useGame() {
     setRound(newRound);
     setDraft('');
     setMessage('');
+    setPaidClue('');
+    setSkippedWord('');
     setResultOpen(false);
     return true;
   }
   function hint() {
     if (round.mode === 'easy' && !round.hintUsed && status === 'playing')
       setRound({ ...round, hintUsed: true });
+  }
+  function canRevealLetter() {
+    if (status !== 'playing') return false;
+    const answerLetters = letters(round.answer.word);
+    const known = knownCorrectPositions(round);
+    return answerLetters.some((_, index) => !known.has(index));
+  }
+  function revealLetter() {
+    if (status !== 'playing') return null;
+    const answerLetters = letters(round.answer.word);
+    const known = knownCorrectPositions(round);
+    const index = answerLetters.findIndex((_, i) => !known.has(i));
+    if (index < 0) return null;
+    const letter = answerLetters[index];
+    setRound({ ...round, revealed: { ...round.revealed, [index]: letter } });
+    setMessage('');
+    return { index, letter };
+  }
+  function canShowClue() {
+    return status === 'playing' && !round.clueShown && Boolean(round.answer.hint);
+  }
+  function showClue() {
+    if (!canShowClue()) return null;
+    const text = round.answer.hint ?? '';
+    setRound({ ...round, clueShown: true });
+    setPaidClue(text);
+    setMessage('');
+    return text;
+  }
+  function skipWord() {
+    if (status !== 'playing') return null;
+    const previous = round.answer.word;
+    const newRound = makeRound(settings);
+    if (!newRound) {
+      error('Այս ընտրությամբ գաղտնի բառ չկա։ Փոխիր երկարությունը կամ բարդությունը։');
+      return null;
+    }
+    setSkippedWord(previous);
+    setRound(newRound);
+    setDraft('');
+    setPaidClue('');
+    setMessage('');
+    setResultOpen(false);
+    return previous;
   }
   function resetStats() {
     const next = emptyStats();
@@ -161,6 +228,13 @@ export function useGame() {
     key,
     start,
     hint,
+    canRevealLetter,
+    revealLetter,
+    canShowClue,
+    showClue,
+    skipWord,
+    paidClue,
+    skippedWord,
     resetStats,
     resultOpen,
     setResultOpen,
