@@ -1,8 +1,8 @@
 <div align="center">
 
-# Բառիկ · Barrik
+# Բառախաղ · Barakhagh
 
-**Հայերեն բառեր։ Ընկերական մրցակցություն։ Ամեն օր՝ նոր բացահայտում։**
+**Գուշակիր բառը։ Ընկերական մրցակցություն։ Ամեն օր՝ նոր բացահայտում։**
 
 [Խաղալ առցանց](https://armworldgame.duckdns.org) · [Գրանցվել](https://armworldgame.duckdns.org/#register) · [Battle](https://armworldgame.duckdns.org/#battle)
 
@@ -10,7 +10,7 @@ React · TypeScript · WebSocket · PWA
 
 </div>
 
-![Բառիկի մենախաղը](docs/screenshots/desktop.png)
+![Բառախաղի մենախաղը](docs/screenshots/desktop.png)
 
 ## Խաղա քո ձևով
 

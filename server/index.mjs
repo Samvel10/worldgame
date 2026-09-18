@@ -305,7 +305,7 @@ const server = createServer(async (req, res) => {
     if (await store.handle(req, res)) return;
     res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' });
     res.end(
-      JSON.stringify({ service: 'barrik-battle', rooms: rooms.size, connections: sockets.size }),
+      JSON.stringify({ service: 'barakhagh-battle', rooms: rooms.size, connections: sockets.size }),
     );
   } catch {
     if (!res.headersSent) res.writeHead(500);

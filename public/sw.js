@@ -1,5 +1,5 @@
 /* global self, caches, fetch */
-const CACHE = 'barrik-public-v3';
+const CACHE = 'barakhagh-public-v1';
 self.addEventListener('install', (event) =>
   event.waitUntil(
     caches
@@ -12,10 +12,18 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
       const keys = await caches.keys();
-      const legacy = keys.some((key) => key === 'barrik-shell-v1' || key === 'barrik-shell-v2');
+      const legacy = keys.some(
+        (key) =>
+          key === 'barrik-shell-v1' ||
+          key === 'barrik-shell-v2' ||
+          key.startsWith('barrik-public-'),
+      );
       await Promise.all(
         keys
-          .filter((key) => key.startsWith('barrik-') && key !== CACHE)
+          .filter(
+            (key) =>
+              (key.startsWith('barrik-') || key.startsWith('barakhagh-')) && key !== CACHE,
+          )
           .map((key) => caches.delete(key)),
       );
       await self.clients.claim();

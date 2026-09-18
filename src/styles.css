@@ -690,31 +690,38 @@ h1 > span {
   border-top: 1px solid var(--border);
 }
 .keyboard {
-  max-width: 520px;
+  width: 100%;
+  max-width: min(520px, 100%);
   margin: auto;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  overflow: visible;
 }
 .key-row {
   display: flex;
-  justify-content: center;
+  justify-content: stretch;
+  align-items: stretch;
   gap: 5px;
+  width: 100%;
+  min-width: 0;
 }
 .key {
   min-width: 0;
   width: 100%;
-  flex: 1;
-  max-width: 48px;
+  flex: 1 1 0;
+  max-width: none;
   height: 41px;
   border: 1px solid transparent;
   border-bottom: 2px solid #cbd5cc;
   background: var(--key);
   border-radius: 5px;
-  font-size: 16px;
+  font-size: clamp(12px, 2.8vw, 16px);
   font-weight: 600;
   position: relative;
   text-transform: none;
+  padding: 0;
+  line-height: 1;
 }
 .key small {
   font-size: 8px;
@@ -1334,17 +1341,17 @@ dialog::backdrop {
     max-width: 280px;
   }
   .keyboard-section {
-    padding: 14px 10px 13px;
+    padding: 14px 8px 13px;
   }
   .keyboard {
     gap: 5px;
   }
   .key-row {
-    gap: 4px;
+    gap: 3px;
   }
   .key {
     height: 42px;
-    font-size: 14px;
+    font-size: clamp(11px, 3.2vw, 14px);
     border-radius: 4px;
   }
   .enter-key,
