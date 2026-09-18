@@ -1,4 +1,4 @@
-import { deleteBackward } from './armenian';
+import { deleteBackward, currentRowLetters, draftFromRow } from './armenian';
 import { describe, expect, it } from 'vitest';
 import {
   normalizeWord,
@@ -28,6 +28,14 @@ describe('Armenian orthography and validation', () => {
   });
   it('treats ու and և as individual tiles', () => {
     expect(letters('Ուղևոր')).toEqual(['ու', 'ղ', 'և', 'ո', 'ր']);
+  });
+  it('keeps paid reveals in place while typed letters fill empty seats', () => {
+    const revealed = { 2: 'ր' };
+    expect(currentRowLetters('աբ', revealed, 5)).toEqual(['ա', 'բ', 'ր', '', '']);
+    expect(currentRowLetters('', { 0: 'ա' }, 4)).toEqual(['ա', '', '', '']);
+    const row = currentRowLetters('բգ', { 0: 'ա' }, 4);
+    expect(row).toEqual(['ա', 'բ', 'գ', '']);
+    expect(draftFromRow(row, { 0: 'ա' })).toBe('բգ');
   });
   it.each(['abc', 'արա1', 'բառ ', ' բառ', 'բ-առ', 'բա՛ռ', 'ա\u0301', '🙂', ''])(
     'rejects non Armenian input %s',

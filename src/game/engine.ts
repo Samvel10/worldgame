@@ -1,7 +1,7 @@
 import { answers, acceptedWords } from '../data/dictionary';
 import { isArmenian, letters, normalizeWord } from './armenian';
 import type { Answer, Difficulty, KeyboardState, Mark, Mode, Stats, Status } from './types';
-export { isArmenian, letters, normalizeWord } from './armenian';
+export { isArmenian, letters, normalizeWord, currentRowLetters, draftFromRow } from './armenian';
 export const levels: Record<Mode, { label: string; description: string; attempts: number }> = {
   easy: { label: 'Հեշտ', description: '3–5 տառ · 7 փորձ · մեկ ակնարկ', attempts: 7 },
   medium: { label: 'Միջին', description: '6–8 տառ · 6 փորձ', attempts: 6 },

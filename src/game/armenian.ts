@@ -10,6 +10,32 @@ export function letters(word: string): string[] {
   return normalizeWord(word).match(/ու|և|[ա-ֆ]/g) ?? [];
 }
 
+/**
+ * Build the current row: paid reveals keep their seats; typed letters fill the rest left to right.
+ */
+export function currentRowLetters(
+  draft: string,
+  revealed: Record<number, string>,
+  length: number,
+): string[] {
+  const row = Array.from({ length }, (_, i) => revealed[i] ?? '');
+  let typedAt = 0;
+  const typed = letters(draft);
+  for (let i = 0; i < length; i++) {
+    if (row[i]) continue;
+    if (typedAt < typed.length) {
+      row[i] = typed[typedAt];
+      typedAt += 1;
+    }
+  }
+  return row;
+}
+
+/** Letters the player typed into non-revealed seats (excludes paid reveals). */
+export function draftFromRow(row: string[], revealed: Record<number, string>): string {
+  return row.filter((char, i) => Boolean(char) && revealed[i] === undefined).join('');
+}
+
 /** Delete whole Armenian tiles while preserving the native input's caret/selection. */
 export function deleteBackward(
   word: string,

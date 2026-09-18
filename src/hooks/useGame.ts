@@ -4,6 +4,8 @@ import { answers } from '../data/dictionary';
 import {
   attemptsFor,
   chooseWord,
+  currentRowLetters,
+  draftFromRow,
   emptyStats,
   evaluateGuess,
   filterAnswers,
@@ -83,6 +85,8 @@ export function useGame() {
   const [skippedWord, setSkippedWord] = useState('');
   const status = gameStatus(round.answer.word, round.guesses, round.attempts);
   const length = letters(round.answer.word).length;
+  const typedCapacity = length - Object.keys(round.revealed).length;
+  const rowLetters = currentRowLetters(draft, round.revealed, length);
   const keyboard = round.guesses.reduce<KeyboardState>(
     (state, guess) => mergeKeyboard(state, guess, evaluateGuess(guess, round.answer.word)),
     {},
@@ -103,21 +107,45 @@ export function useGame() {
       return;
     }
     const normalized = normalizeWord(value);
-    if (letters(normalized).length > length) {
+    if (letters(normalized).length > typedCapacity) {
       error(`Բառը պետք է ունենա ${length} տառ`);
       return;
     }
     setDraft(normalized);
     setMessage('');
   }
+  function backspace() {
+    if (status !== 'playing') return;
+    const typed = letters(draft);
+    if (typed.length) {
+      setDraft(typed.slice(0, -1).join(''));
+      setMessage('');
+      return;
+    }
+    const indices = Object.keys(round.revealed)
+      .map(Number)
+      .sort((a, b) => b - a);
+    if (!indices.length) return;
+    const index = indices[0];
+    const revealed = { ...round.revealed };
+    delete revealed[index];
+    setRound({ ...round, revealed });
+    setMessage('');
+  }
   function submit() {
     if (status !== 'playing') return;
-    const invalid = draft ? validateGuess(draft, length) : `Մուտքագրիր ${length} տառանոց բառ`;
+    const row = currentRowLetters(draft, round.revealed, length);
+    if (row.some((char) => !char)) {
+      error(`Մուտքագրիր ${length} տառանոց բառ`);
+      return;
+    }
+    const guess = normalizeWord(row.join(''));
+    const invalid = validateGuess(guess, length);
     if (invalid) {
       error(invalid);
       return;
     }
-    const guesses = [...round.guesses, normalizeWord(draft)];
+    const guesses = [...round.guesses, guess];
     const nextStatus = gameStatus(round.answer.word, guesses, round.attempts);
     setRound({ ...round, guesses });
     setDraft('');
@@ -131,10 +159,23 @@ export function useGame() {
   }
   function key(value: string) {
     if (value === 'Enter') submit();
-    else if (value === 'Backspace') {
-      setDraft(letters(draft).slice(0, -1).join(''));
+    else if (value === 'Backspace') backspace();
+    else {
+      if (status !== 'playing') return;
+      const row = currentRowLetters(draft, round.revealed, length);
+      const empty = row.findIndex((char) => !char);
+      if (empty < 0) {
+        error(`Բառը պետք է ունենա ${length} տառ`);
+        return;
+      }
+      if (!isArmenian(value)) {
+        error('Մուտքագրիր միայն հայերեն տառեր');
+        return;
+      }
+      row[empty] = normalizeWord(value);
+      setDraft(draftFromRow(row, round.revealed));
       setMessage('');
-    } else replaceDraft(draft + value);
+    }
   }
   function start(next = settings) {
     const newRound = makeRound(next);
@@ -168,7 +209,11 @@ export function useGame() {
     const index = answerLetters.findIndex((_, i) => !known.has(i));
     if (index < 0) return null;
     const letter = answerLetters[index];
-    setRound({ ...round, revealed: { ...round.revealed, [index]: letter } });
+    const row = currentRowLetters(draft, round.revealed, length);
+    row[index] = letter;
+    const revealed = { ...round.revealed, [index]: letter };
+    setRound({ ...round, revealed });
+    setDraft(draftFromRow(row, revealed));
     setMessage('');
     return { index, letter };
   }
@@ -210,7 +255,9 @@ export function useGame() {
     round,
     stats,
     draft,
+    rowLetters,
     replaceDraft,
+    backspace,
     message: !message
       ? ''
       : message === 'Մուտքագրիր միայն հայերեն տառեր'

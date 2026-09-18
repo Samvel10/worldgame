@@ -1,6 +1,6 @@
 import { useI18n } from '../i18n';
 import type { CSSProperties } from 'react';
-import { evaluateGuess, letters } from '../game/engine';
+import { currentRowLetters, evaluateGuess, letters } from '../game/engine';
 import type { Round, Status } from '../game/types';
 import { markSymbols } from '../game/presentation';
 export function Board({
@@ -31,7 +31,11 @@ export function Board({
       {Array.from({ length: round.attempts }, (_, row) => {
         const guess = round.guesses[row];
         const current = row === round.guesses.length && status === 'playing';
-        const chars = letters(guess ?? (current ? draft : ''));
+        const chars = guess
+          ? letters(guess)
+          : current
+            ? currentRowLetters(draft, round.revealed, length)
+            : [];
         const marks = guess ? evaluateGuess(guess, round.answer.word) : undefined;
         return (
           <div
@@ -42,8 +46,8 @@ export function Board({
           >
             {Array.from({ length }, (_, col) => {
               const mark = marks?.[col];
-              const hinted = Boolean(current && !chars[col] && round.revealed?.[col]);
-              const glyph = chars[col] || (hinted ? round.revealed[col] : '');
+              const hinted = Boolean(current && round.revealed?.[col] !== undefined);
+              const glyph = chars[col] ?? '';
               return (
                 <div
                   className={`tile ${mark ?? 'neutral'} ${glyph ? 'filled' : ''} ${guess ? 'reveal' : ''} ${hinted ? 'hint-revealed' : ''}`}
@@ -52,7 +56,7 @@ export function Board({
                   role="img"
                   aria-label={`${col + 1}՝ ${glyph || t('account.emptyTile')}${mark ? `՝ ${t(`helpContent.${mark}`)}` : ''}${hinted ? `՝ ${t('hints.revealedTile')}` : ''}`}
                 >
-                  <span key={glyph}>{glyph}</span>
+                  <span key={`${col}-${glyph}`}>{glyph}</span>
                   {mark && <small aria-hidden="true">{markSymbols[mark]}</small>}
                 </div>
               );

@@ -26,7 +26,6 @@ import { LanguageSwitcher } from './components/LanguageSwitcher';
 
 import { answers } from './data/dictionary';
 import { useGame } from './hooks/useGame';
-import { letters } from './game/engine';
 
 import { useI18n } from './i18n';
 import type { Theme } from './game/types';
@@ -334,7 +333,6 @@ export default function App({
                         : game.round.hintUsed
                           ? t('ui.hintTheme', {
                               theme: t(`themes.${game.round.answer.theme}`),
-                              letter: letters(game.round.answer.word)[0],
                             })
                           : t('ui.newRound'))}
                 </div>
@@ -357,6 +355,10 @@ export default function App({
                       onKeyDown={(e) => {
                         if (e.key === 'Backspace' && !e.ctrlKey && !e.metaKey) {
                           e.preventDefault();
+                          if (!game.draft) {
+                            game.backspace();
+                            return;
+                          }
                           const edit = deleteBackward(
                             game.draft,
                             e.currentTarget.selectionStart ?? 0,
@@ -365,6 +367,8 @@ export default function App({
                           if (edit.value !== game.draft) {
                             pendingCaret.current = edit.caret;
                             game.replaceDraft(edit.value);
+                          } else {
+                            game.backspace();
                           }
                         }
                       }}
