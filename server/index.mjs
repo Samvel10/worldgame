@@ -9,6 +9,7 @@ import {
   comparePlayers,
   scoreGuess,
 } from '../shared/battle-rules.mjs';
+import { BATTLE_WIN_REWARD } from '../shared/economy.mjs';
 import { accountStore } from './accounts.mjs';
 const store = accountStore(process.env.BARRIK_DATA_DIR ?? path.resolve('server/data'));
 const normalize = (s) => s.normalize('NFC').toLowerCase().replace(/եւ|եվ/g, 'և');
@@ -148,6 +149,19 @@ function finish(room) {
   publish(room);
   if (room.phase === 'finished') {
     const ranking = [...room.players.values()].sort(comparePlayers);
+    const winners = ranking.filter((p) => comparePlayers(ranking[0], p) === 0);
+    for (const p of winners) {
+      if (p.guest) continue;
+      const updated = store.credit(p.accountId, BATTLE_WIN_REWARD);
+      if (updated) {
+        send(p.socket, {
+          type: 'balance',
+          balance: updated.balance,
+          rewarded: BATTLE_WIN_REWARD,
+          reason: 'battle_win',
+        });
+      }
+    }
     for (const p of ranking)
       if (!p.guest)
         store.record(p.accountId, {

@@ -26,9 +26,18 @@ type Round = {
   deadline: number | null;
   startedAt: number;
 };
-export function BattlePanel({ onClose }: { onClose: () => void }) {
+export function BattlePanel({
+  onClose,
+  onBalance,
+}: {
+  onClose: () => void;
+  onBalance?: (balance: number) => void;
+}) {
   const { t } = useI18n();
   const socket = useRef<WebSocket | null>(null);
+  const onBalanceEvent = useEffectEvent((balance: number) => {
+    onBalance?.(balance);
+  });
   const [connection, setConnection] = useState('connecting');
   const [retry, setRetry] = useState(0);
   const [myId, setMyId] = useState('');
@@ -108,6 +117,9 @@ export function BattlePanel({ onClose }: { onClose: () => void }) {
         setGuesses((prev) => [...prev, { guess: m.guess, marks: m.marks }]);
         setDraft('');
         setPending(false);
+      }
+      if (m.type === 'balance' && typeof m.balance === 'number') {
+        onBalanceEvent(m.balance);
       }
       if (m.type === 'round_finished') {
         setReveal(m.answer);

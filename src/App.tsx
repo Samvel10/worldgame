@@ -33,21 +33,38 @@ import type { Account } from './components/AccountPage';
 import { BalanceBadge } from './components/BalanceBadge';
 export default function App({
   account,
+  onAccount,
   theme,
   setTheme,
 }: {
   account?: Account | null;
+  onAccount?: (user: Account | null) => void;
   theme: Theme;
   setTheme: (theme: Theme) => void;
 }) {
   const game = useGame();
   const { t, language } = useI18n();
   const accountName = account?.name;
+  const rewardedWin = useRef<string | null>(null);
   const [dialog, setDialog] = useState<
     'help' | 'stats' | 'settings' | 'reset' | 'restart' | 'battle' | null
   >(null);
   const input = useRef<HTMLInputElement>(null);
   const pendingCaret = useRef<number | null>(null);
+  useEffect(() => {
+    if (game.status !== 'won' || !account || !onAccount) return;
+    const winKey = `${game.round.answer.word}:${game.round.guesses.length}`;
+    if (rewardedWin.current === winKey) return;
+    rewardedWin.current = winKey;
+    const abort = new AbortController();
+    fetch('/api/rewards/solo-win', { method: 'POST', signal: abort.signal })
+      .then(async (res) => {
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.user) onAccount(data.user);
+      })
+      .catch(() => {});
+    return () => abort.abort();
+  }, [game.status, game.round.answer.word, game.round.guesses.length, account, onAccount]);
   useLayoutEffect(() => {
     if (pendingCaret.current !== null) {
       input.current?.setSelectionRange(pendingCaret.current, pendingCaret.current);

@@ -1920,20 +1920,38 @@ a.header-help {
   gap: 6px;
   padding: 7px 11px;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--green) 28%, var(--border));
-  background: var(--green-soft);
-  color: var(--green);
+  border: 1px solid #c9a227;
+  background: linear-gradient(180deg, #ffe9a8 0%, #f0c14b 45%, #d4a017 100%);
+  color: #5c3d07;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1;
   white-space: nowrap;
+  box-shadow:
+    inset 0 1px 0 #fff6d0,
+    0 1px 2px #00000022;
+}
+.balance-badge svg {
+  color: #8a6200;
+  flex-shrink: 0;
 }
 .balance-badge-value {
   font-variant-numeric: tabular-nums;
 }
 .balance-badge-unit {
-  font-weight: 500;
-  opacity: 0.85;
+  font-weight: 600;
+  opacity: 0.9;
+}
+:root[data-theme='dark'] .balance-badge {
+  border-color: #a67c00;
+  background: linear-gradient(180deg, #f0d078 0%, #c9a227 50%, #8a6200 100%);
+  color: #2a1a04;
+  box-shadow:
+    inset 0 1px 0 #ffe9a8aa,
+    0 1px 3px #00000055;
+}
+:root[data-theme='dark'] .balance-badge svg {
+  color: #3d2a08;
 }
 .profile-balance {
   display: flex;

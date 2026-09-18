@@ -41,7 +41,7 @@ export default function Site() {
     location.hash = next;
   };
   if (!['login', 'register', 'account', 'battle'].includes(route))
-    return <App account={user} theme={theme} setTheme={setTheme} />;
+    return <App account={user} onAccount={setUser} theme={theme} setTheme={setTheme} />;
   return (
     <div className="app-shell">
       <header className="header site-header">
@@ -72,7 +72,12 @@ export default function Site() {
       </header>
       {route === 'battle' ? (
         <main className="battle-page">
-          <BattlePanel onClose={() => navigate('home')} />
+          <BattlePanel
+            onClose={() => navigate('home')}
+            onBalance={(balance) =>
+              setUser((current) => (current ? { ...current, balance } : current))
+            }
+          />
         </main>
       ) : (
         <AccountPage key={route} user={user} mode={route} onUser={setUser} onNavigate={navigate} />

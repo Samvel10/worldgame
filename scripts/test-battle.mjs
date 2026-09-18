@@ -145,6 +145,15 @@ try {
   const restored = accountStore(data).session({ headers: { cookie: account.cookie } });
   assert.equal(restored.id, 'test-user');
   assert.equal(restored.balance, 100);
+  // Solo win credits +3 to the registered account only (not Battle).
+  const soloWin = await api('rewards/solo-win', {}, account.cookie);
+  assert.equal(soloWin.status, 200);
+  assert.equal(soloWin.data.rewarded, 3);
+  assert.equal(soloWin.data.reason, 'solo_win');
+  assert.equal(soloWin.data.user.balance, 103);
+  assert.equal((await api('session', null, account.cookie)).data.user.balance, 103);
+  assert.equal((await api('rewards/solo-win', {}, account.cookie)).status, 429);
+  assert.equal((await api('rewards/solo-win', {})).status, 401);
   a.send('quick_match', { maxPlayers: 3 });
   const publicRoom = (await a.wait((m) => m.type === 'room_created')).roomId;
   b.send('quick_match', { maxPlayers: 3 });
@@ -290,6 +299,44 @@ try {
     partialA.wait((m) => m.type === 'left'),
     partialB.wait((m) => m.type === 'left'),
   ]);
+  // Battle match winner (registered) earns +20 once when the match ends — not per round.
+  const champ = client(account.cookie);
+  const foe = client();
+  await Promise.all([
+    champ.wait((m) => m.type === 'hello'),
+    foe.wait((m) => m.type === 'hello'),
+  ]);
+  await champ.wait((m) => m.type === 'session');
+  champ.send('create_room', { roundSeconds: 0 });
+  const prizeRoom = (await champ.wait((m) => m.type === 'room_created')).roomId;
+  foe.send('join_room', { roomId: prizeRoom });
+  await champ.wait((m) => m.type === 'room_state' && m.players.length === 2);
+  champ.send('start_battle');
+  for (let round = 0; round < 4; round++) {
+    const started = await champ.wait((m) => m.type === 'round_started' && m.round === round);
+    const word = answers.find(
+      (entry) => entry.difficulty === started.level && len(entry.word) === started.length,
+    ).word;
+    const decoys = answers
+      .filter((entry) => len(entry.word) === started.length && entry.word !== word)
+      .slice(0, started.attempts);
+    champ.send('submit_guess', { guess: word });
+    await champ.wait((m) => m.type === 'guess_result' && m.correct);
+    for (const decoy of decoys) {
+      foe.send('submit_guess', { guess: decoy.word });
+      await foe.wait((m) => m.type === 'guess_result' || m.type === 'error');
+    }
+    await champ.wait((m) => m.type === 'round_finished' && m.round === round);
+  }
+  const payout = await champ.wait(
+    (m) => m.type === 'balance' && m.reason === 'battle_win' && m.rewarded === 20,
+  );
+  assert.equal(payout.balance, 123);
+  assert.equal((await api('session', null, account.cookie)).data.user.balance, 123);
+  assert.equal((await api('session', null, peer.cookie)).data.user.balance, 100);
+  champ.send('leave_room');
+  foe.send('leave_room');
+  await Promise.all([champ.wait((m) => m.type === 'left'), foe.wait((m) => m.type === 'left')]);
   console.log(
     'PASS: zero-solve match retains partial points; repeated normalized word rejected; repeated greens not rewarded twice.',
   );
@@ -299,6 +346,7 @@ try {
   console.log(
     'PASS: two guest clients, authoritative start, four rounds, secret privacy, validation, duplicate start, cleanup, register/login/cookie restore/logout.',
   );
+  console.log('PASS: solo +3 and Battle winner +20 kopeck rewards with per-account balances.');
 } finally {
   for (const ws of clients) ws.terminate();
   child.kill();

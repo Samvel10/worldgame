@@ -2,7 +2,12 @@ import { randomBytes, scrypt, createHash, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 import fs from 'node:fs';
 import path from 'node:path';
-import { STARTING_BALANCE, normalizeBalance } from '../shared/economy.mjs';
+import {
+  STARTING_BALANCE,
+  normalizeBalance,
+  SOLO_WIN_REWARD,
+  SOLO_REWARD_COOLDOWN_MS,
+} from '../shared/economy.mjs';
 const derive = promisify(scrypt);
 const digest = (value) => createHash('sha256').update(value).digest('hex');
 export function accountStore(directory) {
@@ -16,6 +21,7 @@ export function accountStore(directory) {
     accounts = Object.assign(Object.create(null), data);
   }
   const sessions = new Map();
+  const soloRewardAt = new Map();
   let migrated = false;
   for (const [id, record] of Object.entries(accounts)) {
     if (!record || typeof record.password !== 'string' || !Array.isArray(record.history))
@@ -44,6 +50,12 @@ export function accountStore(directory) {
     guest: false,
     balance: normalizeBalance(accounts[id].balance),
   });
+  function credit(id, amount) {
+    if (!accounts[id] || !Number.isInteger(amount) || amount <= 0) return null;
+    accounts[id].balance = normalizeBalance(accounts[id].balance) + amount;
+    save();
+    return publicUser(id);
+  }
   function session(req) {
     const token = /(?:^|;\s*)barrik_session=([a-f0-9]{64})(?:;|$)/.exec(
       req.headers.cookie ?? '',
@@ -69,6 +81,9 @@ export function accountStore(directory) {
     });
     res.end(JSON.stringify(body));
   };
+  function sameOrigin(req) {
+    return !(req.headers.origin && new URL(req.headers.origin).host !== req.headers.host);
+  }
   async function handle(req, res) {
     const url = new URL(req.url, 'http://localhost');
     if (!url.pathname.startsWith('/api/')) return false;
@@ -81,6 +96,29 @@ export function accountStore(directory) {
       reply(res, user ? 200 : 401, { history: user ? (accounts[user.id].history ?? []) : [] });
       return true;
     }
+    if (req.method === 'POST' && url.pathname === '/api/rewards/solo-win') {
+      if (!sameOrigin(req)) {
+        reply(res, 403, { code: 'origin' });
+        return true;
+      }
+      if (!user) {
+        reply(res, 401, { code: 'login' });
+        return true;
+      }
+      const previous = soloRewardAt.get(user.id) ?? 0;
+      if (Date.now() - previous < SOLO_REWARD_COOLDOWN_MS) {
+        reply(res, 429, { code: 'rate', user });
+        return true;
+      }
+      const updated = credit(user.id, SOLO_WIN_REWARD);
+      if (!updated) {
+        reply(res, 500, { code: 'server' });
+        return true;
+      }
+      soloRewardAt.set(user.id, Date.now());
+      reply(res, 200, { user: updated, rewarded: SOLO_WIN_REWARD, reason: 'solo_win' });
+      return true;
+    }
     if (
       req.method !== 'POST' ||
       !['/api/login', '/api/register', '/api/logout'].includes(url.pathname)
@@ -88,7 +126,7 @@ export function accountStore(directory) {
       reply(res, 404, { code: 'not_found' });
       return true;
     }
-    if (req.headers.origin && new URL(req.headers.origin).host !== req.headers.host) {
+    if (!sameOrigin(req)) {
       reply(res, 403, { code: 'origin' });
       return true;
     }
@@ -189,5 +227,5 @@ export function accountStore(directory) {
       save();
     }
   }
-  return { handle, session, record };
+  return { handle, session, record, credit };
 }
