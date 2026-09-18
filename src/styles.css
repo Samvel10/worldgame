@@ -1917,41 +1917,104 @@ a.header-help {
 .balance-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 11px;
+  gap: 7px;
+  padding: 5px 11px 5px 5px;
   border-radius: 999px;
-  border: 1px solid #c9a227;
-  background: linear-gradient(180deg, #ffe9a8 0%, #f0c14b 45%, #d4a017 100%);
-  color: #5c3d07;
+  border: 1px solid #b8860b;
+  background: linear-gradient(180deg, #3a2a0a 0%, #1f1606 100%);
+  color: #ffe7a0;
   font-size: 12px;
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
   box-shadow:
-    inset 0 1px 0 #fff6d0,
-    0 1px 2px #00000022;
+    inset 0 1px 0 #ffffff22,
+    0 2px 6px #00000033;
 }
-.balance-badge svg {
-  color: #8a6200;
+.kopeck-coin {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 28%, #fff4c4 0%, #ffd76a 28%, #e0a820 62%, #a66d00 100%);
+  border: 1px solid #8a5a00;
+  box-shadow:
+    inset 0 1px 1px #fff8d8,
+    inset 0 -2px 3px #9a6a0088,
+    0 1px 2px #00000044;
   flex-shrink: 0;
+}
+.kopeck-coin-face {
+  font-size: 1em;
+  font-weight: 800;
+  color: #6b4200;
+  line-height: 1;
+  text-shadow: 0 1px 0 #ffe9a8;
 }
 .balance-badge-value {
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
 }
 .balance-badge-unit {
   font-weight: 600;
-  opacity: 0.9;
+  font-size: 11px;
+  color: #f0d078;
+  opacity: 0.95;
+}
+.balance-badge-bump {
+  animation: kopeck-bump 0.9s ease;
+}
+@keyframes kopeck-bump {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.reward-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 14px 0 6px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid #c9a227;
+  background: linear-gradient(135deg, #fff8e0 0%, #ffe08a 48%, #f0c14b 100%);
+  color: #5c3d07;
+  font-size: 15px;
+  animation: reward-pop 0.55s ease-out;
+  box-shadow:
+    inset 0 1px 0 #fffdf0,
+    0 6px 18px #c9a22744;
+}
+.reward-banner strong {
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+:root[data-theme='dark'] .reward-banner {
+  background: linear-gradient(135deg, #4a3810 0%, #c9a227 55%, #8a6200 100%);
+  color: #fff6d0;
+  border-color: #e0b84a;
+}
+@keyframes reward-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 :root[data-theme='dark'] .balance-badge {
-  border-color: #a67c00;
-  background: linear-gradient(180deg, #f0d078 0%, #c9a227 50%, #8a6200 100%);
-  color: #2a1a04;
-  box-shadow:
-    inset 0 1px 0 #ffe9a8aa,
-    0 1px 3px #00000055;
-}
-:root[data-theme='dark'] .balance-badge svg {
-  color: #3d2a08;
+  border-color: #e0b84a;
+  background: linear-gradient(180deg, #4a3810 0%, #2a1c08 100%);
+  color: #ffe7a0;
 }
 .profile-balance {
   display: flex;
@@ -1965,6 +2028,16 @@ a.header-help {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--muted);
+}
+.reward-caption {
+  margin: 0 0 12px;
+  text-align: center;
+  color: #8a6200;
+  font-weight: 600;
+  font-size: 13px;
+}
+:root[data-theme='dark'] .reward-caption {
+  color: #f0d078;
 }
 .account-back {
   display: inline-flex;

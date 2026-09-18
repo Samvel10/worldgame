@@ -30,7 +30,7 @@ import { letters } from './game/engine';
 import { useI18n } from './i18n';
 import type { Theme } from './game/types';
 import type { Account } from './components/AccountPage';
-import { BalanceBadge } from './components/BalanceBadge';
+import { BalanceBadge, RewardBanner } from './components/BalanceBadge';
 export default function App({
   account,
   onAccount,
@@ -46,6 +46,7 @@ export default function App({
   const { t, language } = useI18n();
   const accountName = account?.name;
   const rewardedWin = useRef<string | null>(null);
+  const [earnedKopecks, setEarnedKopecks] = useState<number | null>(null);
   const [dialog, setDialog] = useState<
     'help' | 'stats' | 'settings' | 'reset' | 'restart' | 'battle' | null
   >(null);
@@ -60,7 +61,10 @@ export default function App({
     fetch('/api/rewards/solo-win', { method: 'POST', signal: abort.signal })
       .then(async (res) => {
         const data = await res.json().catch(() => ({}));
-        if (res.ok && data.user) onAccount(data.user);
+        if (res.ok && data.user) {
+          onAccount(data.user);
+          setEarnedKopecks(typeof data.rewarded === 'number' ? data.rewarded : 3);
+        }
       })
       .catch(() => {});
     return () => abort.abort();
@@ -100,11 +104,16 @@ export default function App({
     if (game.status === 'playing' && (game.round.guesses.length || game.draft))
       setDialog('restart');
     else {
+      setEarnedKopecks(null);
       game.start();
       input.current?.focus();
     }
   }
   const close = () => setDialog(null);
+  const beginGame = () => {
+    setEarnedKopecks(null);
+    return game.start();
+  };
   return (
     <>
       <a className="skip-link" href="#game">
@@ -282,7 +291,7 @@ export default function App({
                   <button
                     className="primary play-again-inline"
                     onClick={() => {
-                      game.start();
+                      if (beginGame()) input.current?.focus();
                     }}
                   >
                     {t('playAgain')} <ArrowRight size={17} />
@@ -386,7 +395,7 @@ export default function App({
           <button
             className="primary"
             onClick={() => {
-              if (game.start()) {
+              if (beginGame()) {
                 close();
                 input.current?.focus();
               }
@@ -423,7 +432,18 @@ export default function App({
               ? t('ui.resultFound', { count: game.round.guesses.length })
               : t('ui.resultMissed')}
           </p>
-          <button className="primary" onClick={() => game.start()}>
+          {game.status === 'won' && earnedKopecks !== null && (
+            <RewardBanner amount={earnedKopecks} label={t('account.kopeckUnit')} />
+          )}
+          {game.status === 'won' && earnedKopecks !== null && (
+            <p className="reward-caption">{t('account.soloReward', { count: earnedKopecks })}</p>
+          )}
+          <button
+            className="primary"
+            onClick={() => {
+              if (beginGame()) input.current?.focus();
+            }}
+          >
             {t('playAgain')} <ArrowRight size={18} />
           </button>
           <button className="text-button" onClick={() => game.setResultOpen(false)}>

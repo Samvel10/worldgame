@@ -6,6 +6,7 @@ import { deleteBackward, isArmenian, normalizeWord } from '../game/armenian';
 import type { Mark } from '../game/types';
 import { markSymbols } from '../game/presentation';
 import { Keyboard } from './Keyboard';
+import { RewardBanner } from './BalanceBadge';
 import { useI18n } from '../i18n';
 type Player = {
   id: string;
@@ -56,6 +57,7 @@ export function BattlePanel({
   const [draft, setDraft] = useState('');
   const [error, setError] = useState('');
   const [scoreDelta, setScoreDelta] = useState<number | null>(null);
+  const [matchReward, setMatchReward] = useState<number | null>(null);
   const [reveal, setReveal] = useState('');
   const [now, setNow] = useState(() => Date.now());
   const [pending, setPending] = useState(false);
@@ -89,6 +91,7 @@ export function BattlePanel({
         setPlayers([]);
         setRound(null);
         setPending(false);
+        setMatchReward(null);
       }
       if (m.type === 'room_state') {
         setRoundSeconds(String(m.roundSeconds ?? 90));
@@ -120,6 +123,7 @@ export function BattlePanel({
       }
       if (m.type === 'balance' && typeof m.balance === 'number') {
         onBalanceEvent(m.balance);
+        if (m.reason === 'battle_win' && typeof m.rewarded === 'number') setMatchReward(m.rewarded);
       }
       if (m.type === 'round_finished') {
         setReveal(m.answer);
@@ -509,6 +513,14 @@ export function BattlePanel({
                             .map((p) => p.name)
                             .join(', ')}
                         </p>
+                        {matchReward !== null && me && comparePlayers(me, ranked[0]) === 0 && (
+                          <>
+                            <RewardBanner amount={matchReward} label={t('account.kopeckUnit')} />
+                            <p className="reward-caption">
+                              {t('account.battleReward', { count: matchReward })}
+                            </p>
+                          </>
+                        )}
                         <button className="primary" onClick={() => send('leave_room')}>
                           {t('playAgain')}
                         </button>
