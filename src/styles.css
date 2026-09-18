@@ -2369,6 +2369,14 @@ a.header-help {
     font-size: 10px;
     max-width: 130px;
   }
+  .balance-badge {
+    padding: 6px 9px;
+    font-size: 11px;
+    gap: 4px;
+  }
+  .balance-badge-unit {
+    display: none;
+  }
   .game-card {
     width: 100%;
   }
