@@ -106,7 +106,9 @@ try {
   });
   assert.equal(account.status, 200);
   assert(account.cookie);
+  assert.equal(account.data.user.balance, 100);
   assert.equal((await api('session', null, account.cookie)).data.user.id, 'test-user');
+  assert.equal((await api('session', null, account.cookie)).data.user.balance, 100);
   assert.equal(
     (await api('register', { username: 'test-user', password: 'a-good-test-password' })).status,
     409,
@@ -117,14 +119,32 @@ try {
   );
   const login = await api('login', { username: 'test-user', password: 'a-good-test-password' });
   assert.equal(login.status, 200);
+  assert.equal(login.data.user.balance, 100);
+  // Balance survives a fresh store load from disk.
+  const { accountStore: reloadStore } = await import('../server/accounts.mjs');
+  assert.equal(
+    reloadStore(data).session({ headers: { cookie: account.cookie } }).balance,
+    100,
+  );
+  // Second registrant also starts at 100 — balances are per account.
+  const peer = await api('register', {
+    username: 'test-peer',
+    password: 'a-good-test-password',
+    name: 'Peer',
+  });
+  assert.equal(peer.status, 200);
+  assert.equal(peer.data.user.balance, 100);
   const c = client(login.cookie);
   const session = await c.wait((m) => m.type === 'session');
   assert.equal(session.user.guest, false);
+  assert.equal(session.user.balance, 100);
   assert.equal((await api('logout', {}, login.cookie)).status, 200);
   assert.equal((await api('session', null, login.cookie)).data.user, null);
   // New account-store instance proves disk-backed session restoration, not just in-memory state.
   const { accountStore } = await import('../server/accounts.mjs');
-  assert.equal(accountStore(data).session({ headers: { cookie: account.cookie } }).id, 'test-user');
+  const restored = accountStore(data).session({ headers: { cookie: account.cookie } });
+  assert.equal(restored.id, 'test-user');
+  assert.equal(restored.balance, 100);
   a.send('quick_match', { maxPlayers: 3 });
   const publicRoom = (await a.wait((m) => m.type === 'room_created')).roomId;
   b.send('quick_match', { maxPlayers: 3 });

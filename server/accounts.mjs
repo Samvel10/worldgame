@@ -2,6 +2,7 @@ import { randomBytes, scrypt, createHash, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 import fs from 'node:fs';
 import path from 'node:path';
+import { STARTING_BALANCE, normalizeBalance } from '../shared/economy.mjs';
 const derive = promisify(scrypt);
 const digest = (value) => createHash('sha256').update(value).digest('hex');
 export function accountStore(directory) {
@@ -15,9 +16,20 @@ export function accountStore(directory) {
     accounts = Object.assign(Object.create(null), data);
   }
   const sessions = new Map();
+  let migrated = false;
   for (const [id, record] of Object.entries(accounts)) {
     if (!record || typeof record.password !== 'string' || !Array.isArray(record.history))
       throw Error('Invalid account record');
+    if (!Object.hasOwn(record, 'balance')) {
+      record.balance = STARTING_BALANCE;
+      migrated = true;
+    } else {
+      const next = normalizeBalance(record.balance);
+      if (next !== record.balance) {
+        record.balance = next;
+        migrated = true;
+      }
+    }
     for (const item of record.sessions ?? [])
       if (item.expires > Date.now()) sessions.set(item.hash, { id, expires: item.expires });
   }
@@ -25,7 +37,13 @@ export function accountStore(directory) {
     fs.writeFileSync(file + '.tmp', JSON.stringify(accounts), { mode: 0o600 });
     fs.renameSync(file + '.tmp', file);
   };
-  const publicUser = (id) => ({ id, name: accounts[id].name, guest: false });
+  if (migrated) save();
+  const publicUser = (id) => ({
+    id,
+    name: accounts[id].name,
+    guest: false,
+    balance: normalizeBalance(accounts[id].balance),
+  });
   function session(req) {
     const token = /(?:^|;\s*)barrik_session=([a-f0-9]{64})(?:;|$)/.exec(
       req.headers.cookie ?? '',
@@ -137,6 +155,7 @@ export function accountStore(directory) {
             .trim()
             .slice(0, 32) || username,
         password: `${salt}:${hash}`,
+        balance: STARTING_BALANCE,
         history: [],
         sessions: [],
       };

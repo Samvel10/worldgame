@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, Eye, EyeOff, ShieldCheck, UserRound } from 'lucide-react';
 import { useI18n } from '../i18n';
-export type Account = { id: string; name: string; guest: false };
+export type Account = { id: string; name: string; guest: false; balance: number };
 import { formatTime } from '../../shared/battle-rules.mjs';
+import { BalanceBadge } from './BalanceBadge';
 type History = {
   totalTimeMs?: number;
   at: string;
@@ -114,6 +115,10 @@ export function AccountPage({
               <p className="muted">
                 @{user.id} · {t('account.signedIn')}
               </p>
+              <div className="profile-balance">
+                <span className="profile-balance-label">{t('account.balance')}</span>
+                <BalanceBadge balance={user.balance} />
+              </div>
               <a className="primary" href="#battle">
                 {t('battle.title')}
                 <ArrowRight size={17} />

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Moon, Sun, UserRound } from 'lucide-react';
 import App from './App';
 import { AccountPage, type Account } from './components/AccountPage';
+import { BalanceBadge } from './components/BalanceBadge';
 import { BattlePanel } from './components/BattlePanel';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { useI18n } from './i18n';
@@ -40,7 +41,7 @@ export default function Site() {
     location.hash = next;
   };
   if (!['login', 'register', 'account', 'battle'].includes(route))
-    return <App accountName={user?.name} theme={theme} setTheme={setTheme} />;
+    return <App account={user} theme={theme} setTheme={setTheme} />;
   return (
     <div className="app-shell">
       <header className="header site-header">
@@ -52,6 +53,7 @@ export default function Site() {
           </span>
         </a>
         <nav aria-label={t('account.navigation')}>
+          {user && <BalanceBadge balance={user.balance} />}
           <a className="header-help" href={user ? '#account' : '#login'}>
             <UserRound size={19} />
             <span>{user?.name ?? t('battle.login')}</span>

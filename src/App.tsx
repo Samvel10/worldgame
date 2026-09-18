@@ -29,17 +29,20 @@ import { letters } from './game/engine';
 
 import { useI18n } from './i18n';
 import type { Theme } from './game/types';
+import type { Account } from './components/AccountPage';
+import { BalanceBadge } from './components/BalanceBadge';
 export default function App({
-  accountName,
+  account,
   theme,
   setTheme,
 }: {
-  accountName?: string;
+  account?: Account | null;
   theme: Theme;
   setTheme: (theme: Theme) => void;
 }) {
   const game = useGame();
   const { t, language } = useI18n();
+  const accountName = account?.name;
   const [dialog, setDialog] = useState<
     'help' | 'stats' | 'settings' | 'reset' | 'restart' | 'battle' | null
   >(null);
@@ -110,6 +113,7 @@ export default function App({
               <Swords size={18} />
               <span>{t('battle.title')}</span>
             </a>
+            {account && <BalanceBadge balance={account.balance} />}
             <a className="account-nav" href={accountName ? '#account' : '#login'}>
               {accountName ?? t('battle.login')}
             </a>

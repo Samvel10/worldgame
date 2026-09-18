@@ -1914,6 +1914,40 @@ a.header-help {
   max-width: 180px;
   overflow-wrap: anywhere;
 }
+.balance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--green) 28%, var(--border));
+  background: var(--green-soft);
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+.balance-badge-value {
+  font-variant-numeric: tabular-nums;
+}
+.balance-badge-unit {
+  font-weight: 500;
+  opacity: 0.85;
+}
+.profile-balance {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 4px 0 18px;
+}
+.profile-balance-label {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
 .account-back {
   display: inline-flex;
   align-items: center;
